@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="src/style.css">
-    <title>ClipEngine</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="src/style.css">
+  <title>ClipEngine</title>
 </head>
 <body>
-    <div class="window">
-        <div class="title-bar">
-            <div class="title-text">
-                ClipEngine
-            </div>
+  <div class="window">
+    <header>
+      <div class="title-bar">
+        <div class="title-text">
+          ClipEngine
         </div>
+      </div>
+    </header>
+    <div class="main-content">
+      <div class="left-panel panel">
+        <div class="panel-title">Project Explorer</div>
+        <div class="tree-view" id="project-explorer"></div>
+      </div>
 
-        <div class="main-content">
-                <div class="left-panel panel">
-                <div class="panel-title">Project Explorer</div>
-                <div class="tree-view">
-                </div>
-            </div>
+      <div class="center-panel panel">
+        <div class="panel-title">Scene Viewport</div>
+        <div class="viewport" id="canvas-container"></div>
+      </div>
 
-            <div class="center-panel panel">
-                <div class="panel-title">Scene Viewport</div>
-                <div class="viewport"></div>
+      <div class="right-panel panel">
+        <div class="panel-title">Properties</div>
+        <div class="properties" id="properties-panel">
+          <div class="property-group">
+            <div class="property-label">Transform</div>
+            <div class="property-row">
+              <span>Position X</span>
+              <input type="number" class="property-input" id="pos-x">
             </div>
+            <div class="property-row">
+              <span>Position Y</span>
+              <input type="number" class="property-input" id="pos-y">
+            </div>
+            <div class="property-row">
+              <span>Rotation</span>
+              <input type="number" class="property-input" id="rotation">
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="context-menu" id="explorer-context-menu">
+      <div class="menu-item">Add Sprite</div>
+    </div>
+    
+    <script type="module" src="src/logic/sketch.js"></script>
+    <script type="module" src="src/logic/ui.js"></script>
+  </div>
 </body>
 </html>
