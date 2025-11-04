@@ -220,7 +220,7 @@ body {
 
 .context-menu {
   display: none;
-  position: fixed;
+  position: absolute;
   background: var(--color-bg);
   border: var(--border) solid;
   border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
@@ -346,4 +346,80 @@ body {
   display: inline-block;
   vertical-align: middle;
   margin-right: var(--space-xs);
+}
+
+.code-editor-modal {
+  display: none; /* This should be the first display property */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  max-width: 800px;
+  height: 80vh;
+  max-height: 600px;
+  background: var(--color-bg);
+  border: var(--border) solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  padding: var(--space-sm);
+  flex-direction: column;
+}
+
+.code-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.code-editor-title {
+  font-weight: bold;
+  color: var(--color-dark);
+}
+
+.code-editor-close {
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-bg);
+  border: var(--border) solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
+}
+
+.code-editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.code-editor-textarea {
+  flex: 1;
+  font-family: "Courier New", monospace;
+  font-size: var(--font-sm);
+  padding: var(--space-sm);
+  border: var(--border-thin) solid var(--color-border-dark);
+  background: var(--color-text-light);
+  resize: none;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.code-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.code-editor-button {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-bg);
+  border: var(--border) solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
+  cursor: pointer;
+}
+
+.code-editor-button:active {
+  border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark);
 }

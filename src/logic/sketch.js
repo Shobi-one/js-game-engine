@@ -13,14 +13,28 @@ class Sprite {
     this.rotation = options.rotation ?? 0;
     this.color = options.color ?? '#00ff00';
     this.image = options.image ?? null;
+    this.code = options.code ?? '// Write your sprite logic here\n// This code runs every frame\n\n// Example:\n// this.rotation += 1; // Rotate continuously\n// this.x += Math.sin(this.rotation) * 2; // Move in a wave pattern';
   }
 
   update(props = {}) {
     Object.assign(this, props);
   }
 
+  runCode() {
+    try {
+      const code = this.code;
+      if (code && code.trim()) {
+        const fn = new Function(code).bind(this);
+        fn();
+      }
+    } catch (err) {
+      console.error(`Error in sprite ${this.id} code:`, err);
+    }
+  }
+
   draw() {
     const p = p5Instance;
+    this.runCode();
     p.push();
     p.translate(this.x, this.y);
     p.rotate(this.rotation || 0);

@@ -15,36 +15,83 @@ class EditorUI {
 
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
+
+    this.codeEditorModal = document.getElementById('code-editor-modal');
+    this.codeEditorTextarea = document.getElementById('code-editor-textarea');
+    this.codeEditorClose = document.getElementById('code-editor-close');
+    this.codeEditorApply = document.getElementById('code-editor-apply');
+
+    if (this.codeEditorModal) {
+      this._initCodeEditor();
+    }
+  }
+
+  _initCodeEditor() {
+    this.codeEditorClose.addEventListener('click', () => {
+      this.codeEditorModal.style.display = 'none';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.codeEditorModal.style.display === 'block') {
+        this.codeEditorModal.style.display = 'none';
+      }
+    });
+
+    this.codeEditorTextarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.codeEditorTextarea.selectionStart;
+        const end = this.codeEditorTextarea.selectionEnd;
+        this.codeEditorTextarea.value = 
+          this.codeEditorTextarea.value.substring(0, start) + 
+          '  ' + 
+          this.codeEditorTextarea.value.substring(end);
+        this.codeEditorTextarea.selectionStart = this.codeEditorTextarea.selectionEnd = start + 2;
+      }
+    });
+  }
+
+  _showCodeEditor(item, code, onChange) {
+    this.codeEditorTextarea.value = code;
+    this.codeEditorModal.style.display = 'flex';
+    this.codeEditorTextarea.focus();
+
+    const applyHandler = () => {
+      onChange(this.codeEditorTextarea.value);
+      this.codeEditorModal.style.display = 'none';
+      this.codeEditorApply.removeEventListener('click', applyHandler);
+    };
+
+    this.codeEditorApply.addEventListener('click', applyHandler);
   }
 
   _initContextMenu() {
-    const showContextMenu = (e) => {
+    this.projectExplorer.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       e.stopPropagation();
       
-      const x = e.clientX;
-      const y = e.clientY;
-      
-      // Ensure menu stays within window bounds
+      const rect = this.projectExplorer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
       const menuWidth = this.contextMenu.offsetWidth || 120;
       const menuHeight = this.contextMenu.offsetHeight || 30;
-      const viewportWidth = document.documentElement.clientWidth;
-      const viewportHeight = document.documentElement.clientHeight;
+      const maxX = rect.width - menuWidth;
+      const maxY = rect.height - menuHeight;
       
-      this.contextMenu.style.left = `${Math.min(x, viewportWidth - menuWidth)}px`;
-      this.contextMenu.style.top = `${Math.min(y, viewportHeight - menuHeight)}px`;
+      this.contextMenu.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+      this.contextMenu.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
       this.contextMenu.style.display = 'block';
-    };
+      
+      console.log('Context menu shown at', x, y);
+    });
 
-    this.projectExplorer.addEventListener('contextmenu', showContextMenu);
-
-    const hideContextMenu = (e) => {
+    document.addEventListener('mousedown', (e) => {
       if (!this.contextMenu.contains(e.target)) {
         this.contextMenu.style.display = 'none';
       }
-    };
+    });
 
-    document.addEventListener('click', hideContextMenu);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.contextMenu.style.display = 'none';
@@ -52,9 +99,11 @@ class EditorUI {
     });
 
     this.contextMenu.querySelectorAll('.menu-item').forEach(item => {
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
         const obj = this.scene.addSprite();
         if (obj) this.addItemToExplorer(obj);
+        this.contextMenu.style.display = 'none';
       });
     });
   }
@@ -103,6 +152,24 @@ class EditorUI {
             { id: 'width', label: 'Width', type: 'number', value: item.width ?? 50, min: 1, step: 1, validate: v => v > 0 },
             { id: 'height', label: 'Height', type: 'number', value: item.height ?? 50, min: 1, step: 1, validate: v => v > 0 },
             { id: 'color', label: 'Color', type: 'text', value: item.color ?? '#00ff00', validate: v => /^#[0-9a-f]{6}$/i.test(v) }
+          ]
+        },
+        behavior: {
+          label: 'Behavior',
+          properties: [
+            {
+              id: 'code',
+              label: 'Logic',
+              type: 'custom',
+              value: item.code,
+              render: (value, onChange) => {
+                const button = document.createElement('button');
+                button.className = 'code-editor-button';
+                button.textContent = 'Edit Logic';
+                button.onclick = () => this._showCodeEditor(item, value, onChange);
+                return button;
+              }
+            }
           ]
         }
       };
@@ -161,6 +228,11 @@ class EditorUI {
 
         const validateAndUpdate = (propId, value) => {
           const prop = group.properties.find(p => p.id === propId);
+          
+          if (prop.type === 'custom' || !prop.validate) {
+            return true;
+          }
+
           const isValid = prop.validate(value);
           const error = errors[propId];
           

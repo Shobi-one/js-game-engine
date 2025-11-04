@@ -18,7 +18,11 @@
     <div class="main-content">
       <div class="left-panel panel">
         <div class="panel-title">Project Explorer</div>
-        <div class="tree-view" id="project-explorer"></div>
+        <div class="tree-view" id="project-explorer">
+          <div class="context-menu" id="explorer-context-menu">
+            <div class="menu-item">Add Sprite</div>
+          </div>
+        </div>
       </div>
 
       <div class="center-panel panel">
@@ -48,8 +52,17 @@
       </div>
     </div>
 
-    <div class="context-menu" id="explorer-context-menu">
-      <div class="menu-item">Add Sprite</div>
+    <div class="code-editor-modal" id="code-editor-modal">
+      <div class="code-editor-header">
+        <div class="code-editor-title">Edit Sprite Logic</div>
+        <button class="code-editor-close" id="code-editor-close">×</button>
+      </div>
+      <div class="code-editor-content">
+        <textarea class="code-editor-textarea" id="code-editor-textarea" spellcheck="false"></textarea>
+      </div>
+      <div class="code-editor-footer">
+        <button class="code-editor-button" id="code-editor-apply">Apply</button>
+      </div>
     </div>
     
     <script type="module" src="src/logic/sketch.js"></script>
