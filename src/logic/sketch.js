@@ -34,6 +34,7 @@ class Sprite {
 
   draw() {
     const p = p5Instance;
+    window.p5Instance = p;  
     this.runCode();
     p.push();
     p.translate(this.x, this.y);
@@ -89,6 +90,62 @@ class Scene {
 
 const scene = new Scene();
 
+class GameController {
+  constructor() {
+    this.isRunning = false;
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    const runMenu = document.querySelector('.menu-bar .menu-item:nth-child(4)');
+    const dropdownMenu = document.getElementById('run-menu');
+    
+    runMenu.addEventListener('click', () => {
+      dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+      runMenu.classList.toggle('active');
+      
+      const rect = runMenu.getBoundingClientRect();
+      dropdownMenu.style.top = `${rect.bottom}px`;
+      dropdownMenu.style.left = `${rect.left}px`;
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!runMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.style.display = 'none';
+        runMenu.classList.remove('active');
+      }
+    });
+
+    document.getElementById('run-game').addEventListener('click', () => this.startGame());
+    document.getElementById('stop-game').addEventListener('click', () => this.stopGame());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F6') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.stopGame();
+        } else {
+          this.startGame();
+        }
+      }
+    });
+  }
+
+  startGame() {
+    this.isRunning = true;
+    document.getElementById('canvas-container').classList.remove('paused');
+    document.getElementById('run-menu').style.display = 'none';
+  }
+
+  stopGame() {
+    this.isRunning = false;
+    document.getElementById('canvas-container').classList.add('paused');
+    document.getElementById('run-menu').style.display = 'none';
+  }
+}
+
+const gameController = new GameController();
+
 const sketch = (p) => {
   p5Instance = p;
 
@@ -100,11 +157,15 @@ const sketch = (p) => {
     p.angleMode(p.DEGREES);
     p.rectMode(p.CENTER);
     p.frameRate(60);
+    
+    gameController.stopGame();
   };
 
   p.draw = () => {
     p.background(0);
-    scene.drawAll();
+    if (gameController.isRunning) {
+      scene.drawAll();
+    }
   };
 
   p.windowResized = () => {

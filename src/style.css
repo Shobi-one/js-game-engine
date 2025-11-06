@@ -126,6 +126,50 @@ body {
   color: var(--color-text-light);
 }
 
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background: var(--color-bg);
+  border: var(--border) solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 180px;
+  padding: var(--space-xs) 0;
+}
+
+.dropdown-menu .menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) var(--space-md);
+}
+
+.menu-item-shortcut {
+  color: var(--color-border-dark);
+  font-size: var(--font-xs);
+  margin-left: var(--space-lg);
+}
+
+.menu-bar .menu-item.active {
+  background: var(--color-dark);
+  color: var(--color-text-light);
+}
+
+.viewport.paused::before {
+  content: 'PAUSED';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-lg);
+  color: var(--color-text-light);
+  background: rgba(0, 0, 0, 0.7);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--space-xxs);
+  pointer-events: none;
+}
+
 .toolbar {
   background: var(--color-bg);
   border-bottom: var(--border) solid;
@@ -281,6 +325,29 @@ body {
   font-size: var(--font-sm);
   height: calc(100% - var(--window-height-offset));
   overflow-y: auto;
+  position: relative;
+}
+
+.no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--color-border-dark);
+  gap: var(--space-md);
+}
+
+.no-selection-text {
+  font-size: var(--font-md);
+  font-weight: bold;
+}
+
+.no-selection-hint {
+  font-size: var(--font-sm);
+  max-width: 80%;
+  line-height: 1.4;
 }
 
 .property-group {

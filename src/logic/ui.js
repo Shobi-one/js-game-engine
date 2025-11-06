@@ -142,8 +142,19 @@ class EditorUI {
         console.error('propertiesPanel element not found');
         return;
       }
+
       this.propertiesPanel.innerHTML = '';
-      if (!item) return;
+
+      if (!item) {
+        const noSelection = document.createElement('div');
+        noSelection.className = 'no-selection';
+        noSelection.innerHTML = `
+          <div class="no-selection-text">No object selected</div>
+          <div class="no-selection-hint">Click on an object in the scene or project explorer to view and edit its properties.</div>
+        `;
+        this.propertiesPanel.appendChild(noSelection);
+        return;
+      }
 
       const propertyDefs = {
         transform: {
