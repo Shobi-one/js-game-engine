@@ -52,17 +52,25 @@ class EditorUI {
   }
 
   _showCodeEditor(item, code, onChange) {
-    this.codeEditorTextarea.value = code;
+    this.codeEditorTextarea.value = code || '';
     this.codeEditorModal.style.display = 'flex';
     this.codeEditorTextarea.focus();
 
-    const applyHandler = () => {
-      onChange(this.codeEditorTextarea.value);
+    if (this._currentApplyHandler) {
+      this.codeEditorApply.removeEventListener('click', this._currentApplyHandler);
+    }
+
+    this._currentApplyHandler = () => {
+      const newCode = this.codeEditorTextarea.value;
+      onChange(newCode);
+
+      if (item) {
+        item.code = newCode;
+      }
       this.codeEditorModal.style.display = 'none';
-      this.codeEditorApply.removeEventListener('click', applyHandler);
     };
 
-    this.codeEditorApply.addEventListener('click', applyHandler);
+    this.codeEditorApply.addEventListener('click', this._currentApplyHandler);
   }
 
   _initContextMenu() {
@@ -161,13 +169,21 @@ class EditorUI {
               id: 'code',
               label: 'Logic',
               type: 'custom',
-              value: item.code,
+              value: item.code || '',
               render: (value, onChange) => {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.gap = 'var(--space-xs)';
+
                 const button = document.createElement('button');
                 button.className = 'code-editor-button';
                 button.textContent = 'Edit Logic';
-                button.onclick = () => this._showCodeEditor(item, value, onChange);
-                return button;
+                
+                button.onclick = () => this._showCodeEditor(item, item.code, onChange);
+                
+                container.appendChild(button);
+                return container;
               }
             }
           ]
@@ -182,23 +198,34 @@ class EditorUI {
         const label = document.createElement('label');
         label.textContent = propDef.label;
         label.htmlFor = `prop-${item.id}-${propDef.id}`;
+        row.appendChild(label);
         
-        const input = document.createElement('input');
-        input.className = 'property-input';
-        input.id = `prop-${item.id}-${propDef.id}`;
-        input.type = propDef.type;
-        input.value = propDef.value;
-        input.dataset.propId = propDef.id;
-        if (propDef.min !== undefined) input.min = propDef.min;
-        if (propDef.step !== undefined) input.step = propDef.step;
+        let input;
+        if (propDef.type === 'custom' && propDef.render) {
+          input = propDef.render(propDef.value, (newValue) => {
+            const update = {};
+            update[propDef.id] = newValue;
+            if (this.scene?.updateSprite) {
+              this.scene.updateSprite(Number(item.id), update);
+            }
+          });
+        } else {
+          input = document.createElement('input');
+          input.className = 'property-input';
+          input.id = `prop-${item.id}-${propDef.id}`;
+          input.type = propDef.type;
+          input.value = propDef.value ?? '';
+          input.dataset.propId = propDef.id;
+          if (propDef.min !== undefined) input.min = propDef.min;
+          if (propDef.step !== undefined) input.step = propDef.step;
+        }
+        
+        row.appendChild(input);
         
         const error = document.createElement('span');
         error.className = 'property-error';
         error.style.display = 'none';
         error.id = `error-${item.id}-${propDef.id}`;
-
-        row.appendChild(label);
-        row.appendChild(input);
         row.appendChild(error);
         
         return { row, input, error };
