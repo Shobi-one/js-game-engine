@@ -46,9 +46,9 @@ class EditorUI {
       }
     });
 
-    const undoBtn = document.getElementById('undo-btn');
+    const undoBtn = document.querySelector('menu-item[text="Undo"]');
     if (undoBtn) undoBtn.addEventListener('click', () => this.undo());
-    const redoBtn = document.getElementById('redo-btn');
+    const redoBtn = document.querySelector('menu-item[text="Redo"]');
     if (redoBtn) redoBtn.addEventListener('click', () => this.redo());
   }
 
@@ -138,7 +138,6 @@ class EditorUI {
         const obj = this.scene.addSprite();
         if (obj) {
           this.addItemToExplorer(obj);
-          // push undo action for creation
           this._pushUndo({ type: 'create', id: obj.id });
         }
         this.contextMenu.style.display = 'none';
@@ -419,7 +418,6 @@ class EditorUI {
         });
       });
 
-      // Add Delete button for the selected item
       const deleteRow = document.createElement('div');
       deleteRow.style.display = 'flex';
       deleteRow.style.justifyContent = 'flex-end';
@@ -431,9 +429,7 @@ class EditorUI {
         try {
           const res = this.scene.removeSprite(Number(item.id));
           if (res) {
-            // push undo action with full item data
             this._pushUndo({ type: 'delete', item: res.removed, index: res.index });
-            // remove tree element
             const el = this.projectExplorer.querySelector(`.tree-item[data-id="${item.id}"]`);
             if (el) el.remove();
             this.selectedItem = null;

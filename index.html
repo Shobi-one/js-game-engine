@@ -16,23 +16,17 @@
         </div>
       </div>
       <div class="menu-bar">
-        <div class="menu-item">File</div>
-        <div class="menu-item">Edit</div>
-        <div class="menu-item" id="undo-btn">Undo</div>
-        <div class="menu-item">View</div>
-        <div class="menu-item">Run</div>
-        <div class="menu-item">Project</div>
-        <div class="menu-item">Build</div>
+        <menu-item text="File"></menu-item>
+        <menu-item text="Edit"></menu-item>
+        <menu-item text="Undo" id="undo-btn"></menu-item>
+        <menu-item text="View"></menu-item>
+        <menu-item text="Run"></menu-item>
+        <menu-item text="Project"></menu-item>
+        <menu-item text="Build"></menu-item>
       </div>
       <div id="run-menu" class="dropdown-menu">
-        <div class="menu-item" id="run-game">
-          <span class="menu-item-text">Run Game</span>
-          <span class="menu-item-shortcut">F6</span>
-        </div>
-        <div class="menu-item" id="stop-game">
-          <span class="menu-item-text">Stop Game</span>
-          <span class="menu-item-shortcut">Shift+F6</span>
-        </div>
+        <menu-item text="Run Game" shortcut="F6" id="run-game"></menu-item>
+        <menu-item text="Stop Game" shortcut="Shift+F6" id="stop-game"></menu-item>
       </div>
     </header>
     <div class="main-content">
@@ -76,6 +70,7 @@
       </div>
     </div>
 
+    <script type="module" src="src/components/MenuItemComponent.js"></script>
     <script type="module" src="src/logic/sketch.js"></script>
     <script type="module" src="src/logic/ui.js"></script>
   </div>

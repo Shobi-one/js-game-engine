@@ -116,12 +116,12 @@ class GameController {
   }
 
   setupEventListeners() {
-    const runMenu = document.querySelector('.menu-bar .menu-item:nth-child(4)');
+    const runMenu = document.querySelector('menu-item[text="Run"]');
     const dropdownMenu = document.getElementById('run-menu');
     
     runMenu.addEventListener('click', () => {
       dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-      runMenu.classList.toggle('active');
+      runMenu.shadowRoot.querySelector('.menu-item').classList.toggle('active');
       
       const rect = runMenu.getBoundingClientRect();
       dropdownMenu.style.top = `${rect.bottom}px`;
@@ -131,7 +131,7 @@ class GameController {
     document.addEventListener('click', (e) => {
       if (!runMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
         dropdownMenu.style.display = 'none';
-        runMenu.classList.remove('active');
+        runMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
       }
     });
 
