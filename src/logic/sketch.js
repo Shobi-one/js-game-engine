@@ -83,6 +83,25 @@ class Scene {
     return { sprites: this.sprites };
   }
 
+  removeSprite(id) {
+    const idx = this.sprites.findIndex(x => x.id === Number(id));
+    if (idx === -1) return null;
+    const [removed] = this.sprites.splice(idx, 1);
+    return { removed, index: idx };
+  }
+
+  insertSpriteAt(sprite, index) {
+    const existing = this.sprites.findIndex(x => x.id === sprite.id);
+    if (existing !== -1) {
+      this.sprites[existing] = sprite;
+      return existing;
+    }
+    
+    const i = Math.max(0, Math.min(index ?? this.sprites.length, this.sprites.length));
+    this.sprites.splice(i, 0, sprite);
+    return i;
+  }
+
   drawAll() {
     this.sprites.forEach(s => s.draw());
   }

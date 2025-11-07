@@ -24,6 +24,32 @@ class EditorUI {
     if (this.codeEditorModal) {
       this._initCodeEditor();
     }
+
+    // Undo / Redo stacks: actions are { type: 'create'|'delete'|'update', ... }
+    this._undoStack = [];
+    this._redoStack = [];
+
+    // Wire undo/redo shortcuts and menu (if present)
+    document.addEventListener('keydown', (e) => {
+      // Undo: Ctrl/Cmd+Z
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        this.undo();
+        return;
+      }
+
+      // Redo: Ctrl+Y or Ctrl+Shift+Z / Cmd+Shift+Z
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        this.redo();
+        return;
+      }
+    });
+
+    const undoBtn = document.getElementById('undo-btn');
+    if (undoBtn) undoBtn.addEventListener('click', () => this.undo());
+    const redoBtn = document.getElementById('redo-btn');
+    if (redoBtn) redoBtn.addEventListener('click', () => this.redo());
   }
 
   _initCodeEditor() {
@@ -110,10 +136,94 @@ class EditorUI {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const obj = this.scene.addSprite();
-        if (obj) this.addItemToExplorer(obj);
+        if (obj) {
+          this.addItemToExplorer(obj);
+          // push undo action for creation
+          this._pushUndo({ type: 'create', id: obj.id });
+        }
         this.contextMenu.style.display = 'none';
       });
     });
+  }
+
+  _pushUndo(action) {
+    this._undoStack.push(action);
+    this._redoStack.length = 0;
+    if (this._undoStack.length > 100) this._undoStack.shift();
+  }
+
+  undo() {
+    if (!this._undoStack || this._undoStack.length === 0) return;
+    const action = this._undoStack.pop();
+    try {
+      if (action.type === 'create') {
+        const res = this.scene.removeSprite(action.id);
+        const el = this.projectExplorer.querySelector(`.tree-item[data-id="${action.id}"]`);
+        if (el) el.remove();
+        if (this.selectedItem && this.selectedItem.id === Number(action.id)) {
+          this.selectedItem = null;
+          this.renderProperties(null);
+        }
+        if (res) {
+          this._redoStack.push({ type: 'create', item: res.removed, index: res.index });
+        }
+      } else if (action.type === 'delete') {
+        const { item, index } = action;
+        this.scene.insertSpriteAt(item, index);
+        this.addItemToExplorer(item);
+        this._redoStack.push({ type: 'delete', id: item.id });
+
+      } else if (action.type === 'update') {
+        const { id, prev } = action;
+        const current = this.scene.getItem('sprite', id);
+        const after = current ? { } : null;
+        if (current && prev) {
+          Object.keys(prev).forEach(k => after[k] = current[k]);
+          this.scene.updateSprite(id, prev);
+          this._redoStack.push({ type: 'update', id, prev: after });
+        }
+        if (this.selectedItem && this.selectedItem.id === Number(id)) {
+          const item = this.scene.getItem('sprite', id);
+          this.renderProperties(item);
+        }
+      }
+    } catch (err) {
+      console.error('Undo failed', err);
+    }
+  }
+
+  redo() {
+    if (!this._redoStack || this._redoStack.length === 0) return;
+    const action = this._redoStack.pop();
+    try {
+      if (action.type === 'create') {
+        const idx = this.scene.insertSpriteAt(action.item, action.index);
+        this.addItemToExplorer(action.item);
+        this._undoStack.push({ type: 'create', id: action.item.id });
+      } else if (action.type === 'delete') {
+        const res = this.scene.removeSprite(action.id);
+        const el = this.projectExplorer.querySelector(`.tree-item[data-id="${action.id}"]`);
+        if (el) el.remove();
+        if (res) {
+          this._undoStack.push({ type: 'delete', item: res.removed, index: res.index });
+        }
+      } else if (action.type === 'update') {
+        const { id, prev } = action;
+        const current = this.scene.getItem('sprite', id);
+        if (current) {
+          const before = {};
+          Object.keys(prev).forEach(k => before[k] = current[k]);
+          this.scene.updateSprite(id, prev);
+          this._undoStack.push({ type: 'update', id, prev: before });
+        }
+        if (this.selectedItem && this.selectedItem.id === Number(id)) {
+          const item = this.scene.getItem('sprite', id);
+          this.renderProperties(item);
+        }
+      }
+    } catch (err) {
+      console.error('Redo failed', err);
+    }
   }
 
   selectItem(type, id) {
@@ -308,6 +418,33 @@ class EditorUI {
           validateAndUpdate(propId, input.type === 'number' ? Number(input.value) : input.value);
         });
       });
+
+      // Add Delete button for the selected item
+      const deleteRow = document.createElement('div');
+      deleteRow.style.display = 'flex';
+      deleteRow.style.justifyContent = 'flex-end';
+      deleteRow.style.marginTop = 'var(--space-sm)';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.className = 'code-editor-button';
+      deleteBtn.addEventListener('click', () => {
+        try {
+          const res = this.scene.removeSprite(Number(item.id));
+          if (res) {
+            // push undo action with full item data
+            this._pushUndo({ type: 'delete', item: res.removed, index: res.index });
+            // remove tree element
+            const el = this.projectExplorer.querySelector(`.tree-item[data-id="${item.id}"]`);
+            if (el) el.remove();
+            this.selectedItem = null;
+            this.renderProperties(null);
+          }
+        } catch (err) {
+          console.error('Delete failed', err);
+        }
+      });
+      deleteRow.appendChild(deleteBtn);
+      this.propertiesPanel.appendChild(deleteRow);
 
     } catch (err) {
       console.error('Error in renderProperties', err);
