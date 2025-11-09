@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#222222">
   <link rel="stylesheet" href="src/style.css">
   <title>ClipEngine</title>
 </head>
@@ -27,6 +29,9 @@
       <div id="run-menu" class="dropdown-menu">
         <menu-item text="Run Game" shortcut="F6" id="run-game"></menu-item>
         <menu-item text="Stop Game" shortcut="Shift+F6" id="stop-game"></menu-item>
+      </div>
+      <div id="project-menu" class="dropdown-menu">
+        <menu-item text="Open RSS Feeds" id="open-rss-menu"></menu-item>
       </div>
     </header>
     <div class="main-content">
@@ -70,9 +75,45 @@
       </div>
     </div>
 
+    <div class="code-editor-modal window" id="rss-modal" style="width:700px;">
+      <header>
+        <div class="title-bar">
+          <div class="title-text">RSS Feeds</div>
+          <button class="control-btn" id="rss-modal-close">×</button>
+        </div>
+      </header>
+      <div class="code-editor-content" style="display:flex;flex-direction:column;gap:8px;padding:12px;">
+        <div style="display:flex;gap:8px;">
+          <input id="rss-feed-1" placeholder="Feed URL 1" style="flex:1" />
+          <input id="rss-feed-2" placeholder="Feed URL 2 (optional)" style="flex:1" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="rss-proxy" placeholder="Optional CORS proxy (default: https://api.allorigins.win/raw?url=)" style="flex:1" />
+          <button id="rss-load-btn">Load</button>
+          <button id="rss-start-btn">Start Polling</button>
+          <button id="rss-stop-btn">Stop</button>
+        </div>
+        <div style="font-size:12px;color:#777;">Tip: If remote feeds block CORS, set a CORS proxy like <code>https://api.allorigins.win/raw?url=</code></div>
+        <div id="rss-list" style="max-height:360px;overflow:auto;border:1px solid #ddd;padding:8px;background:#fafafa;"></div>
+      </div>
+    </div>
+
     <script type="module" src="src/components/MenuItemComponent.js"></script>
     <script type="module" src="src/logic/sketch.js"></script>
     <script type="module" src="src/logic/ui.js"></script>
+      <script>
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('service-worker.js')
+              .then(function(registration) {
+                console.log('ServiceWorker registration successful:', registration);
+              })
+              .catch(function(error) {
+                console.log('ServiceWorker registration failed:', error);
+              });
+          });
+        }
+      </script>
   </div>
 </body>
 

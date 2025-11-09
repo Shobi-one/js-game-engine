@@ -128,10 +128,29 @@ class GameController {
       dropdownMenu.style.left = `${rect.left}px`;
     });
 
+    const projectMenu = document.querySelector('menu-item[text="Project"]');
+    const projectDropdown = document.getElementById('project-menu');
+    if (projectMenu && projectDropdown) {
+      projectMenu.addEventListener('click', () => {
+        projectDropdown.style.display = projectDropdown.style.display === 'block' ? 'none' : 'block';
+        projectMenu.shadowRoot.querySelector('.menu-item').classList.toggle('active');
+        const rect = projectMenu.getBoundingClientRect();
+        projectDropdown.style.top = `${rect.bottom}px`;
+        projectDropdown.style.left = `${rect.left}px`;
+      });
+    }
+
     document.addEventListener('click', (e) => {
+      // close run menu
       if (!runMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
         dropdownMenu.style.display = 'none';
         runMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
+      }
+
+      // close project menu
+      if (projectMenu && projectDropdown && !projectMenu.contains(e.target) && !projectDropdown.contains(e.target)) {
+        projectDropdown.style.display = 'none';
+        projectMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
       }
     });
 

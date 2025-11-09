@@ -15,6 +15,7 @@ class EditorUI {
 
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
+    this._initRSS();
 
     this.codeEditorModal = document.getElementById('code-editor-modal');
     this.codeEditorTextarea = document.getElementById('code-editor-textarea');
@@ -446,6 +447,218 @@ class EditorUI {
       console.error('Error in renderProperties', err);
     }
   }
+
+  _initRSS() {
+    try {
+      this.rssFeed1 = document.getElementById('rss-feed-1');
+      this.rssFeed2 = document.getElementById('rss-feed-2');
+      this.rssProxy = document.getElementById('rss-proxy');
+      this.rssLoadBtn = document.getElementById('rss-load-btn');
+      this.rssStartBtn = document.getElementById('rss-start-btn');
+      this.rssStopBtn = document.getElementById('rss-stop-btn');
+
+      this.rssModal = document.getElementById('rss-modal');
+      this.rssModalClose = document.getElementById('rss-modal-close');
+      this.openRssMenu = document.getElementById('open-rss-menu');
+
+      if (this.openRssMenu) {
+        this.openRssMenu.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (this.rssModal) {
+            this.rssModal.style.display = 'flex';
+            setTimeout(() => this.loadFeeds(), 20);
+          }
+        });
+      }
+
+      if (this.rssModalClose) {
+        this.rssModalClose.addEventListener('click', () => {
+          if (this.rssModal) this.rssModal.style.display = 'none';
+        });
+      }
+
+      if (this.rssLoadBtn) this.rssLoadBtn.addEventListener('click', () => this.loadFeeds());
+      if (this.rssStartBtn) this.rssStartBtn.addEventListener('click', () => this.startPolling());
+      if (this.rssStopBtn) this.rssStopBtn.addEventListener('click', () => this.stopPolling());
+
+      if (this.rssProxy && !this.rssProxy.value) this.rssProxy.value = 'https://api.allorigins.win/raw?url=';
+    } catch (err) {
+      console.warn('RSS init skipped or failed', err);
+    }
+  }
+  async _fetchAndParseFeed(url, proxy) {
+    try {
+      const fetchUrl = proxy && proxy.length > 0 ? proxy + encodeURIComponent(url) : url;
+      const res = await fetch(fetchUrl);
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
+      const text = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'application/xml');
+
+      if (doc.querySelector('parsererror')) {
+        console.warn('XML parse error for', url);
+      }
+
+      const items = [];
+
+      const itemNodes = doc.querySelectorAll('item');
+      if (itemNodes.length) {
+        itemNodes.forEach(node => {
+          const title = node.querySelector('title')?.textContent?.trim() || 'No title';
+          const link = node.querySelector('link')?.textContent?.trim() || node.querySelector('guid')?.textContent?.trim() || '';
+          const guid = node.querySelector('guid')?.textContent?.trim() || link || title;
+          const desc = node.querySelector('description')?.textContent?.trim() || '';
+          const pub = node.querySelector('pubDate')?.textContent?.trim() || node.querySelector('dc\:date')?.textContent?.trim() || '';
+          const pubDate = pub ? new Date(pub) : null;
+          items.push({ guid, link, title, description: desc, pubDate, source: url });
+        });
+        return items;
+      }
+
+      const entryNodes = doc.querySelectorAll('entry');
+      if (entryNodes.length) {
+        entryNodes.forEach(node => {
+          const title = node.querySelector('title')?.textContent?.trim() || 'No title';
+          const id = node.querySelector('id')?.textContent?.trim() || title;
+          const linkEl = node.querySelector('link[rel="alternate"]') || node.querySelector('link');
+          const link = linkEl?.getAttribute('href') || linkEl?.textContent?.trim() || '';
+          const summary = node.querySelector('summary')?.textContent?.trim() || node.querySelector('content')?.textContent?.trim() || '';
+          const pub = node.querySelector('updated')?.textContent?.trim() || node.querySelector('published')?.textContent?.trim() || '';
+          const pubDate = pub ? new Date(pub) : null;
+          items.push({ guid: id, link, title, description: summary, pubDate, source: url });
+        });
+        return items;
+      }
+
+      return items;
+    } catch (err) {
+      console.error('Failed to fetch/parse feed', url, err);
+      return [];
+    }
+  }
+
+  async loadFeeds() {
+    try {
+      const f1 = document.getElementById('rss-feed-1')?.value?.trim();
+      const f2 = document.getElementById('rss-feed-2')?.value?.trim();
+      const proxy = document.getElementById('rss-proxy')?.value?.trim() || 'https://api.allorigins.win/raw?url=';
+
+      const urls = [];
+      if (f1) urls.push(f1);
+      if (f2) urls.push(f2);
+
+      const allItems = [];
+      for (const u of urls) {
+        const items = await this._fetchAndParseFeed(u, proxy);
+        allItems.push(...items.map(i => ({ ...i, source: u })));
+      }
+
+      const merged = this._mergeAndDetectNew(allItems);
+      this.renderRSS(merged);
+    } catch (err) {
+      console.error('loadFeeds failed', err);
+    }
+  }
+
+  _mergeAndDetectNew(items) {
+    if (!this._rss) this._rss = { itemsMap: new Map() };
+
+    const newList = [];
+    items.forEach(it => {
+      const key = it.guid || it.link || (it.title + '|' + (it.pubDate?.toString() || ''));
+      if (!this._rss.itemsMap.has(key)) {
+        this._rss.itemsMap.set(key, it);
+        it._isNew = true;
+      } else {
+        it._isNew = false;
+      }
+
+      if (it.pubDate && !(it.pubDate instanceof Date)) it.pubDate = new Date(it.pubDate);
+      this._rss.itemsMap.set(key, { ...this._rss.itemsMap.get(key), ...it });
+    });
+
+    const merged = Array.from(this._rss.itemsMap.values()).sort((a, b) => {
+      const da = a.pubDate ? new Date(a.pubDate) : new Date(0);
+      const db = b.pubDate ? new Date(b.pubDate) : new Date(0);
+      return db - da;
+    });
+
+    return merged;
+  }
+
+  startPolling(intervalMs = 30000) {
+    if (this._rss && this._rss.timer) return;
+    this._rss = this._rss || { itemsMap: new Map() };
+    this._rss.timer = setInterval(() => this.loadFeeds(), intervalMs);
+    console.log('RSS polling started every', intervalMs, 'ms');
+  }
+
+  stopPolling() {
+    if (this._rss && this._rss.timer) {
+      clearInterval(this._rss.timer);
+      this._rss.timer = null;
+      console.log('RSS polling stopped');
+    }
+  }
+
+  renderRSS(items) {
+    try {
+      const container = document.getElementById('rss-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div style="color:#666;font-size:13px">No items</div>';
+        return;
+      }
+
+      items.forEach(it => {
+        const key = it.guid || it.link || (it.title + '|' + (it.pubDate?.toString() || ''));
+        const row = document.createElement('div');
+        row.className = 'rss-item';
+        row.dataset.key = key;
+        row.style.padding = '6px';
+        row.style.borderBottom = '1px solid #eee';
+        if (it._isNew) {
+          row.style.background = '#fff9e6';
+        }
+
+        const a = document.createElement('a');
+        a.href = it.link || '#';
+        a.textContent = it.title || '(no title)';
+        a.target = '_blank';
+        a.style.display = 'block';
+        a.style.fontWeight = '600';
+
+        const meta = document.createElement('div');
+        meta.style.fontSize = '12px';
+        meta.style.color = '#666';
+        const date = it.pubDate ? (new Date(it.pubDate)).toLocaleString() : 'no date';
+        meta.textContent = `${date} • ${it.source || ''}`;
+
+        const desc = document.createElement('div');
+        desc.style.fontSize = '13px';
+        desc.style.marginTop = '4px';
+        desc.innerHTML = it.description ? (it.description.length > 300 ? it.description.substring(0, 300) + '…' : it.description) : '';
+
+        row.appendChild(a);
+        row.appendChild(meta);
+        row.appendChild(desc);
+
+        container.appendChild(row);
+
+        if (it._isNew) {
+          setTimeout(() => {
+            row.style.background = '';
+            it._isNew = false;
+          }, 6000);
+        }
+      });
+    } catch (err) {
+      console.error('renderRSS failed', err);
+    }
+  }
+
 
   addItemToExplorer(obj) {
     const item = document.createElement('div');
