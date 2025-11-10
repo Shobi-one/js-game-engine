@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#222222">
-  <link rel="stylesheet" href="src/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#222222">
+  <link rel="stylesheet" href="/src/style.css">
   <title>ClipEngine</title>
 </head>
 
@@ -54,7 +55,8 @@
         <div class="properties" id="properties-panel">
           <div class="no-selection">
             <div class="no-selection-text">No object selected</div>
-            <div class="no-selection-hint">Click on an object in the scene or project explorer to view and edit its properties.</div>
+            <div class="no-selection-hint">Click on an object in the scene or project explorer to view and edit its
+              properties.</div>
           </div>
         </div>
       </div>
@@ -88,32 +90,35 @@
           <input id="rss-feed-2" placeholder="Feed URL 2 (optional)" style="flex:1" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <input id="rss-proxy" placeholder="Optional CORS proxy (default: https://api.allorigins.win/raw?url=)" style="flex:1" />
+          <input id="rss-proxy" placeholder="Optional CORS proxy (default: https://api.allorigins.win/raw?url=)"
+            style="flex:1" />
           <button id="rss-load-btn">Load</button>
           <button id="rss-start-btn">Start Polling</button>
           <button id="rss-stop-btn">Stop</button>
         </div>
-        <div style="font-size:12px;color:#777;">Tip: If remote feeds block CORS, set a CORS proxy like <code>https://api.allorigins.win/raw?url=</code></div>
-        <div id="rss-list" style="max-height:360px;overflow:auto;border:1px solid #ddd;padding:8px;background:#fafafa;"></div>
+        <div style="font-size:12px;color:#777;">Tip: If remote feeds block CORS, set a CORS proxy like
+          <code>https://api.allorigins.win/raw?url=</code></div>
+        <div id="rss-list" style="max-height:360px;overflow:auto;border:1px solid #ddd;padding:8px;background:#fafafa;">
+        </div>
       </div>
     </div>
 
-    <script type="module" src="src/components/MenuItemComponent.js"></script>
-    <script type="module" src="src/logic/sketch.js"></script>
-    <script type="module" src="src/logic/ui.js"></script>
-      <script>
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', function() {
-            navigator.serviceWorker.register('service-worker.js')
-              .then(function(registration) {
-                console.log('ServiceWorker registration successful:', registration);
-              })
-              .catch(function(error) {
-                console.log('ServiceWorker registration failed:', error);
-              });
-          });
-        }
-      </script>
+    <script type="module" src="/src/components/MenuItemComponent.js"></script>
+    <script type="module" src="/src/logic/sketch.js"></script>
+    <script type="module" src="/src/logic/ui.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(function (registration) {
+              console.log('ServiceWorker registration successful:', registration);
+            })
+            .catch(function (error) {
+              console.log('ServiceWorker registration failed:', error);
+            });
+        });
+      }
+    </script>
   </div>
 </body>
 

@@ -1,4 +1,5 @@
 import { scene } from './sketch.js';
+import '../style.css';
 
 class EditorUI {
   constructor(scene) {

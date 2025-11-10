@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clippengine-cache-v1';
+const CACHE_NAME = 'js-game-engine-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
