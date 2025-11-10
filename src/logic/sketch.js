@@ -14,10 +14,25 @@ class Sprite {
     this.rotation = options.rotation ?? 0;
     this.color = options.color ?? '#00ff00';
     this.image = options.image ?? null;
+    this.imageUrl = options.imageUrl ?? null;
     this.code = options.code ?? '// Write your sprite logic here\n// This code runs every frame\n\n// Example:\n// this.rotation += 1; // Rotate continuously\n// this.x += Math.sin(this.rotation) * 2; // Move in a wave pattern';
   }
 
   update(props = {}) {
+    if ('imageUrl' in props) {
+      this.imageUrl = props.imageUrl;
+      if (this.imageUrl) {
+        p5Instance.loadImage(this.imageUrl, (img) => {
+          this.image = img;
+        }, (err) => {
+          console.error('Failed to load image:', err);
+          this.image = null;
+        });
+      } else {
+        this.image = null;
+      }
+    }
+    
     Object.assign(this, props);
   }
 
@@ -33,15 +48,19 @@ class Sprite {
     }
   }
 
-  draw() {
+  draw(isRunning = false) {
     const p = p5Instance;
     window.p5Instance = p;  
-    this.runCode();
+    
+    if (isRunning) {
+      this.runCode();
+    }
+    
     p.push();
     p.translate(this.x, this.y);
     p.rotate(this.rotation || 0);
 
-    if (this.image) {
+    if (this.image && this.image.width > 0) {
       p.imageMode(p.CENTER);
       p.image(this.image, 0, 0, this.width, this.height);
     } else {
@@ -103,8 +122,8 @@ class Scene {
     return i;
   }
 
-  drawAll() {
-    this.sprites.forEach(s => s.draw());
+  drawAll(isRunning = false) {
+    this.sprites.forEach(s => s.draw(isRunning));
   }
 }
 
@@ -142,13 +161,11 @@ class GameController {
     }
 
     document.addEventListener('click', (e) => {
-      // close run menu
       if (!runMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
         dropdownMenu.style.display = 'none';
         runMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
       }
 
-      // close project menu
       if (projectMenu && projectDropdown && !projectMenu.contains(e.target) && !projectDropdown.contains(e.target)) {
         projectDropdown.style.display = 'none';
         projectMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
@@ -184,6 +201,7 @@ class GameController {
 }
 
 const gameController = new GameController();
+window.gameController = gameController;
 
 const sketch = (p) => {
   p5Instance = p;
@@ -203,7 +221,9 @@ const sketch = (p) => {
   p.draw = () => {
     p.background(0);
     if (gameController.isRunning) {
-      scene.drawAll();
+      scene.drawAll(true);  // true = run sprite code
+    } else {
+      scene.drawAll(false); // false = just draw, don't run code
     }
   };
 

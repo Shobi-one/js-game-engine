@@ -281,7 +281,64 @@ class EditorUI {
           properties: [
             { id: 'width', label: 'Width', type: 'number', value: item.width ?? 50, min: 1, step: 1, validate: v => v > 0 },
             { id: 'height', label: 'Height', type: 'number', value: item.height ?? 50, min: 1, step: 1, validate: v => v > 0 },
-            { id: 'color', label: 'Color', type: 'text', value: item.color ?? '#00ff00', validate: v => /^#[0-9a-f]{6}$/i.test(v) }
+            { id: 'color', label: 'Color', type: 'text', value: item.color ?? '#00ff00', validate: v => /^#[0-9a-f]{6}$/i.test(v) },
+            {
+              id: 'imageUrl',
+              label: 'Image',
+              type: 'custom',
+              value: item.imageUrl || '',
+              render: (value, onChange) => {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.gap = 'var(--space-xs)';
+
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.className = 'property-input';
+                
+                fileInput.onchange = (e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                      const imageUrl = evt.target.result;
+                      onChange(imageUrl);
+                      preview.src = imageUrl;
+                      preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                };
+
+                const preview = document.createElement('img');
+                preview.style.maxWidth = '100px';
+                preview.style.maxHeight = '100px';
+                preview.style.marginTop = '4px';
+                preview.style.border = '1px solid #ccc';
+                preview.style.borderRadius = '4px';
+                preview.style.display = item.imageUrl ? 'block' : 'none';
+                if (item.imageUrl) {
+                  preview.src = item.imageUrl;
+                }
+
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'code-editor-button';
+                clearBtn.textContent = 'Clear Image';
+                clearBtn.style.marginTop = '4px';
+                clearBtn.onclick = () => {
+                  onChange(null);
+                  fileInput.value = '';
+                  preview.style.display = 'none';
+                };
+
+                container.appendChild(fileInput);
+                container.appendChild(preview);
+                container.appendChild(clearBtn);
+                return container;
+              }
+            }
           ]
         },
         behavior: {
