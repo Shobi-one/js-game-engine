@@ -27,20 +27,16 @@ class EditorUI {
       this._initCodeEditor();
     }
 
-    // Undo / Redo stacks: actions are { type: 'create'|'delete'|'update', ... }
     this._undoStack = [];
     this._redoStack = [];
 
-    // Wire undo/redo shortcuts and menu (if present)
     document.addEventListener('keydown', (e) => {
-      // Undo: Ctrl/Cmd+Z
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
         e.preventDefault();
         this.undo();
         return;
       }
 
-      // Redo: Ctrl+Y or Ctrl+Shift+Z / Cmd+Shift+Z
       if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
         e.preventDefault();
         this.redo();
