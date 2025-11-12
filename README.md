@@ -8,7 +8,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
-- **Scene Management** - Save and load scenes with JSON-based configuration
+- **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport
 - **Web Workers** - Multi-threaded processing support for performance-intensive tasks
 - **PWA Support** - Installable as a Progressive Web App with offline capability
@@ -238,7 +238,6 @@ ClipEngine works best in modern browsers with WebGL support:
 - [p5.js Reference](https://p5js.org/reference/)
 - [Three.js Documentation](https://threejs.org/docs/)
 - [Tone.js Documentation](https://tonejs.github.io/docs/)
-- [WebGL Fundamentals](https://webglfundamentals.org/)
 
 ## Contributing
 
