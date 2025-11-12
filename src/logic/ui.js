@@ -51,15 +51,8 @@ class EditorUI {
   }
 
   _initCodeEditor() {
-    this.codeEditorClose.addEventListener('click', () => {
-      this.codeEditorModal.style.display = 'none';
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.codeEditorModal.style.display === 'block') {
-        this.codeEditorModal.style.display = 'none';
-      }
-    });
+    // Close button is now handled by the modal component
+    // ESC key is also handled by the modal component
 
     this.codeEditorTextarea.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
@@ -77,7 +70,7 @@ class EditorUI {
 
   _showCodeEditor(item, code, onChange) {
     this.codeEditorTextarea.value = code || '';
-    this.codeEditorModal.style.display = 'flex';
+    this.codeEditorModal.show();
     this.codeEditorTextarea.focus();
 
     if (this._currentApplyHandler) {
@@ -91,7 +84,7 @@ class EditorUI {
       if (item) {
         item.code = newCode;
       }
-      this.codeEditorModal.style.display = 'none';
+      this.codeEditorModal.hide();
     };
 
     this.codeEditorApply.addEventListener('click', this._currentApplyHandler);
@@ -530,15 +523,9 @@ class EditorUI {
         this.openRssMenu.addEventListener('click', (e) => {
           e.stopPropagation();
           if (this.rssModal) {
-            this.rssModal.style.display = 'flex';
+            this.rssModal.show();
             setTimeout(() => this.loadFeeds(), 20);
           }
-        });
-      }
-
-      if (this.rssModalClose) {
-        this.rssModalClose.addEventListener('click', () => {
-          if (this.rssModal) this.rssModal.style.display = 'none';
         });
       }
 

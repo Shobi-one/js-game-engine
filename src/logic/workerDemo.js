@@ -24,15 +24,7 @@ class WorkerDemo {
             this.openWorkerDemo.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (this.workerDemoModal) {
-                    this.workerDemoModal.style.display = 'flex';
-                }
-            });
-        }
-
-        if (this.workerDemoClose) {
-            this.workerDemoClose.addEventListener('click', () => {
-                if (this.workerDemoModal) {
-                    this.workerDemoModal.style.display = 'none';
+                    this.workerDemoModal.show();
                 }
             });
         }

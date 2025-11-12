@@ -47,6 +47,8 @@
       <div id="view-menu" class="dropdown-menu">
         <menu-item text="2D Mode (p5.js)" id="view-2d"></menu-item>
         <menu-item text="3D Mode (Three.js)" id="view-3d"></menu-item>
+        <menu-item text="Toggle Project Panel" id="toggle-project-panel"></menu-item>
+        <menu-item text="Toggle Properties Panel" id="toggle-properties-panel"></menu-item>
       </div>
       <div id="project-menu" class="dropdown-menu">
         <menu-item text="Open RSS Feeds" id="open-rss-menu"></menu-item>
@@ -95,29 +97,17 @@
       </div>
     </div>
 
-    <div class="code-editor-modal window" id="code-editor-modal">
-      <header>
-        <div class="title-bar">
-          <div class="title-text">Edit Sprite Logic</div>
-          <button class="control-btn" id="code-editor-close">×</button>
-        </div>
-      </header>
-      <div class="code-editor-content">
+    <modal-window id="code-editor-modal" title="Edit Sprite Logic" width="auto" height="80vh">
+      <div slot="content" class="code-editor-content-wrapper">
         <textarea class="code-editor-textarea" id="code-editor-textarea" spellcheck="false"></textarea>
       </div>
-      <div class="code-editor-footer">
+      <div slot="footer">
         <button class="code-editor-button" id="code-editor-apply">Apply</button>
       </div>
-    </div>
+    </modal-window>
 
-    <div class="code-editor-modal window modal-width-700" id="rss-modal">
-      <header>
-        <div class="title-bar">
-          <div class="title-text">RSS Feeds</div>
-          <button class="control-btn" id="rss-modal-close">×</button>
-        </div>
-      </header>
-      <div class="code-editor-content flex-column">
+    <modal-window id="rss-modal" title="RSS Feeds" width="700">
+      <div slot="content" class="flex-column">
         <div class="flex-row">
           <input id="rss-feed-1" placeholder="Feed URL 1" class="flex-1" />
           <input id="rss-feed-2" placeholder="Feed URL 2 (optional)" class="flex-1" />
@@ -134,17 +124,11 @@
         <div id="rss-list" class="rss-list-container">
         </div>
       </div>
-    </div>
+    </modal-window>
 
     <!-- Web Worker Demo Modal -->
-    <div class="code-editor-modal window modal-width-600" id="worker-demo-modal">
-      <header>
-        <div class="title-bar">
-          <div class="title-text">Web Worker Demo</div>
-          <button class="control-btn" id="worker-demo-close">×</button>
-        </div>
-      </header>
-      <div class="code-editor-content flex-column">
+    <modal-window id="worker-demo-modal" title="Web Worker Demo" width="600">
+      <div slot="content" class="flex-column">
         <div class="worker-button-group">
           <button id="worker-init-btn" class="code-editor-button worker-button-full">Initialize Worker</button>
           <button id="worker-start-btn" class="code-editor-button worker-button-full" disabled>Start Worker</button>
@@ -161,17 +145,10 @@
           </div>
         </div>
       </div>
-    </div>
+    </modal-window>
 
-    <!-- Model Loader Modal -->
-    <div class="code-editor-modal window modal-width-500" id="model-loader-modal">
-      <header>
-        <div class="title-bar">
-          <div class="title-text">Load 3D Model</div>
-          <button class="control-btn" id="model-loader-close">×</button>
-        </div>
-      </header>
-      <div class="code-editor-content form-group">
+    <modal-window id="model-loader-modal" title="Load 3D Model" width="500">
+      <div slot="content" class="form-group">
         <div>
           <label class="form-label">Model Type</label>
           <select id="model-type" class="property-input full-width">
@@ -190,22 +167,15 @@
         <div class="modal-tip">
           Tip: You can find free 3D models at <a href="https://sketchfab.com" target="_blank">Sketchfab</a> or <a href="https://polyhaven.com" target="_blank">Poly Haven</a>
         </div>
-        <div class="button-row">
-          <button id="model-load-btn" class="code-editor-button">Load Model</button>
-          <button id="model-cancel-btn" class="code-editor-button button-gray">Cancel</button>
-        </div>
       </div>
-    </div>
+      <div slot="footer">
+        <button id="model-load-btn" class="code-editor-button">Load Model</button>
+        <button id="model-cancel-btn" class="code-editor-button button-gray">Cancel</button>
+      </div>
+    </modal-window>
 
-    <!-- Light Creator Modal -->
-    <div class="code-editor-modal window modal-width-400" id="light-creator-modal">
-      <header>
-        <div class="title-bar">
-          <div class="title-text">Add Light</div>
-          <button class="control-btn" id="light-creator-close">×</button>
-        </div>
-      </header>
-      <div class="code-editor-content form-group">
+    <modal-window id="light-creator-modal" title="Add Light" width="400">
+      <div slot="content" class="form-group">
         <div>
           <label class="form-label">Light Type</label>
           <select id="light-type" class="property-input full-width">
@@ -225,22 +195,57 @@
           <input type="range" id="light-intensity" min="0" max="5" step="0.1" value="1" class="property-input full-width">
           <span id="light-intensity-value">1.0</span>
         </div>
-        <div class="button-row">
-          <button id="light-create-btn" class="code-editor-button">Create Light</button>
-          <button id="light-cancel-btn" class="code-editor-button button-gray">Cancel</button>
+      </div>
+      <div slot="footer">
+        <button id="light-create-btn" class="code-editor-button">Create Light</button>
+        <button id="light-cancel-btn" class="code-editor-button button-gray">Cancel</button>
+      </div>
+    </modal-window>
+
+    <!-- Floating Panels -->
+    <panel-modal id="floating-project-panel" title="Project Explorer" width="250" height="400">
+      <div slot="content" id="floating-project-content">
+        <div>
+          Project explorer content will appear here when toggled.
         </div>
       </div>
-    </div>
+    </panel-modal>
 
+    <panel-modal id="floating-properties-panel" title="Properties" width="300" height="500">
+      <div slot="content" id="floating-properties-content">
+        <div>
+          Properties panel content will appear here when toggled.
+        </div>
+      </div>
+    </panel-modal>
+
+    <script type="module" src="/src/components/ModalComponent.js"></script>
+    <script type="module" src="/src/components/PanelModalComponent.js"></script>
     <script type="module" src="/src/components/MenuItemComponent.js"></script>
     <script type="module" src="/src/logic/sketch.js"></script>
     <script type="module" src="/src/logic/ui.js"></script>
     <script type="module" src="/src/logic/workerDemo.js"></script>
     <script type="module" src="/src/logic/threeIntegration.js"></script>
     <script type="module">
-      // Initialize Audio UI
       import { AudioUI } from '/src/logic/audioUI.js';
       window.audioUI = new AudioUI();
+
+      const toggleProjectPanel = document.getElementById('toggle-project-panel');
+      const togglePropertiesPanel = document.getElementById('toggle-properties-panel');
+      const floatingProjectPanel = document.getElementById('floating-project-panel');
+      const floatingPropertiesPanel = document.getElementById('floating-properties-panel');
+
+      if (toggleProjectPanel && floatingProjectPanel) {
+        toggleProjectPanel.addEventListener('click', () => {
+          floatingProjectPanel.toggle();
+        });
+      }
+
+      if (togglePropertiesPanel && floatingPropertiesPanel) {
+        togglePropertiesPanel.addEventListener('click', () => {
+          floatingPropertiesPanel.toggle();
+        });
+      }
     </script>
     <script>
       if ('serviceWorker' in navigator) {

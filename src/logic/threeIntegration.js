@@ -297,19 +297,16 @@ class EngineController {
 
   _initModelLoader() {
     const modal = document.getElementById('model-loader-modal');
-    const closeBtn = document.getElementById('model-loader-close');
     const cancelBtn = document.getElementById('model-cancel-btn');
     const loadBtn = document.getElementById('model-load-btn');
     const modelFile = document.getElementById('model-file');
     const modelUrl = document.getElementById('model-url');
     const modelType = document.getElementById('model-type');
     
-    closeBtn.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
+    // Close button is now handled by the modal component
     
     cancelBtn.addEventListener('click', () => {
-      modal.style.display = 'none';
+      modal.hide();
     });
     
     loadBtn.addEventListener('click', async () => {
@@ -348,7 +345,7 @@ class EngineController {
               this.threeUI.selectItem('object', obj.id);
             }
             
-            modal.style.display = 'none';
+            modal.hide();
             modelFile.value = '';
             modelUrl.value = '';
           } catch (error) {
@@ -378,7 +375,7 @@ class EngineController {
             this.threeUI.selectItem('object', obj.id);
           }
           
-          modal.style.display = 'none';
+          modal.hide();
           modelFile.value = '';
           modelUrl.value = '';
         } catch (error) {
@@ -392,7 +389,6 @@ class EngineController {
 
   _initLightCreator() {
     const modal = document.getElementById('light-creator-modal');
-    const closeBtn = document.getElementById('light-creator-close');
     const cancelBtn = document.getElementById('light-cancel-btn');
     const createBtn = document.getElementById('light-create-btn');
     const lightType = document.getElementById('light-type');
@@ -404,12 +400,10 @@ class EngineController {
       intensityValue.textContent = parseFloat(lightIntensity.value).toFixed(1);
     });
     
-    closeBtn.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
+    // Close button is now handled by the modal component
     
     cancelBtn.addEventListener('click', () => {
-      modal.style.display = 'none';
+      modal.hide();
     });
     
     createBtn.addEventListener('click', () => {
@@ -435,7 +429,7 @@ class EngineController {
         this.threeUI.selectItem('light', light.id);
       }
       
-      modal.style.display = 'none';
+      modal.hide();
     });
   }
 }

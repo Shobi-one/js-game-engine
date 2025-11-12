@@ -102,33 +102,24 @@ class ThreeEditorUI {
   _showModelLoader() {
     const modal = document.getElementById('model-loader-modal');
     if (modal) {
-      modal.style.display = 'flex';
+      modal.show();
     }
   }
 
   _showLightCreator() {
     const modal = document.getElementById('light-creator-modal');
     if (modal) {
-      modal.style.display = 'flex';
+      modal.show();
     }
   }
 
   _initCodeEditor() {
     this.codeEditorModal = document.getElementById('code-editor-modal');
     this.codeEditorTextarea = document.getElementById('code-editor-textarea');
-    this.codeEditorClose = document.getElementById('code-editor-close');
     this.codeEditorApply = document.getElementById('code-editor-apply');
     
     if (this.codeEditorModal) {
-      this.codeEditorClose.addEventListener('click', () => {
-        this.codeEditorModal.style.display = 'none';
-      });
-      
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.codeEditorModal.style.display === 'block') {
-          this.codeEditorModal.style.display = 'none';
-        }
-      });
+      // Close button and ESC key are now handled by the modal component
       
       this.codeEditorTextarea.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
@@ -147,7 +138,7 @@ class ThreeEditorUI {
 
   _showCodeEditor(item, code, onChange) {
     this.codeEditorTextarea.value = code || '';
-    this.codeEditorModal.style.display = 'flex';
+    this.codeEditorModal.show();
     this.codeEditorTextarea.focus();
     
     if (this._currentApplyHandler) {
@@ -161,7 +152,7 @@ class ThreeEditorUI {
       if (item) {
         item.code = newCode;
       }
-      this.codeEditorModal.style.display = 'none';
+      this.codeEditorModal.hide();
     };
     
     this.codeEditorApply.addEventListener('click', this._currentApplyHandler);
