@@ -533,7 +533,7 @@ class EditorUI {
       if (this.rssStartBtn) this.rssStartBtn.addEventListener('click', () => this.startPolling());
       if (this.rssStopBtn) this.rssStopBtn.addEventListener('click', () => this.stopPolling());
 
-      if (this.rssProxy && !this.rssProxy.value) this.rssProxy.value = 'https://api.allorigins.win/raw?url=';
+      if (this.rssProxy && !this.rssProxy.value) this.rssProxy.value = 'https://corsproxy.io/?';
     } catch (err) {
       console.warn('RSS init skipped or failed', err);
     }
@@ -593,7 +593,7 @@ class EditorUI {
     try {
       const f1 = document.getElementById('rss-feed-1')?.value?.trim();
       const f2 = document.getElementById('rss-feed-2')?.value?.trim();
-      const proxy = document.getElementById('rss-proxy')?.value?.trim() || 'https://api.allorigins.win/raw?url=';
+      const proxy = document.getElementById('rss-proxy')?.value?.trim() || 'https://corsproxy.io/?';
 
       const urls = [];
       if (f1) urls.push(f1);

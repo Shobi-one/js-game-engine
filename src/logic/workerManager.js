@@ -17,7 +17,7 @@ class WorkerManager {
     }
 
     try {
-      this.worker = new Worker('/src/workers/gameWorker.js', { type: 'module' });
+      this.worker = new Worker(new URL('../workers/gameWorker.js', import.meta.url), { type: 'module' });
     
       this.worker.addEventListener('message', (event) => {
         this.handleWorkerMessage(event);
