@@ -2,7 +2,7 @@
 
 A browser-based game engine and visual editor for creating 2D and 3D interactive experiences. ClipEngine provides an intuitive IDE-like interface for building games and animations using p5.js and Three.js, with built-in audio support via Tone.js.
 
-## 🎮 Features
+## Features
 
 - **2D Game Development** - Create 2D games and animations using p5.js with an intuitive sprite-based system
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
@@ -16,14 +16,14 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **Project Explorer** - Hierarchical view of scene objects and assets
 - **Properties Panel** - Edit object properties and transformations in real-time
 
-## 🚀 Technology Stack
+## Technology Stack
 
 - **[p5.js](https://p5js.org/)** (v2.0.5) - Creative coding framework for 2D graphics
 - **[Three.js](https://threejs.org/)** (v0.181.1) - 3D graphics library
 - **[Tone.js](https://tonejs.github.io/)** (v15.1.22) - Web Audio framework
 - **[Vite](https://vitejs.dev/)** (v7.1.7) - Next-generation frontend build tool
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -50,7 +50,7 @@ npm run dev
 
 4. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
 
-## 🎯 Getting Started
+## Getting Started
 
 ### Creating a 2D Scene
 
@@ -76,7 +76,7 @@ The engine comes with example scenes:
 - **Audio Demo Scene** - Shows audio integration
 - **Sample 3D Scene** - Features animated 3D objects with various geometries and lighting
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 js-game-engine/
@@ -111,7 +111,7 @@ js-game-engine/
 └── vite.config.js        # Build configuration
 ```
 
-## 🎨 Scene Format
+## Scene Format
 
 ### 2D Scene Structure
 
@@ -168,7 +168,7 @@ js-game-engine/
 }
 ```
 
-## 💡 Code Examples
+## Code Examples
 
 ### 2D Sprite Animation
 
@@ -203,7 +203,7 @@ this.mesh.position.z = Math.sin(time) * radius;
 
 See [CODE_EXAMPLES.js](CODE_EXAMPLES.js) for a comprehensive collection of animation patterns and behaviors.
 
-## 🛠️ Development
+## Development
 
 ### Available Commands
 
@@ -226,29 +226,29 @@ npm run build
 
 The optimized production build will be generated in the `dist/` directory.
 
-## 🌐 Browser Support
+## Browser Support
 
 ClipEngine works best in modern browsers with WebGL support:
 - Chrome/Edge (recommended)
 - Firefox
 - Safari
 
-## 🎓 Learning Resources
+## Learning Resources
 
 - [p5.js Reference](https://p5js.org/reference/)
 - [Three.js Documentation](https://threejs.org/docs/)
 - [Tone.js Documentation](https://tonejs.github.io/docs/)
 - [WebGL Fundamentals](https://webglfundamentals.org/)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
 
-## 📝 License
+## License
 
 This project is open source and available under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with p5.js, Three.js, and Tone.js
 - Inspired by game engines like Unity and Godot
@@ -256,4 +256,4 @@ This project is open source and available under the MIT License.
 
 ---
 
-**ClipEngine** - Create games and interactive experiences in your browser 🎮✨
+**ClipEngine** - Create games and interactive experiences in your browser
