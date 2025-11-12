@@ -33,6 +33,7 @@
       </div>
       <div id="project-menu" class="dropdown-menu">
         <menu-item text="Open RSS Feeds" id="open-rss-menu"></menu-item>
+        <menu-item text="Web Worker Demo" id="open-worker-demo"></menu-item>
       </div>
     </header>
     <div class="main-content">
@@ -103,9 +104,37 @@
       </div>
     </div>
 
+    <!-- Web Worker Demo Modal -->
+    <div class="code-editor-modal window" id="worker-demo-modal" style="width:600px;">
+      <header>
+        <div class="title-bar">
+          <div class="title-text">Web Worker Demo</div>
+          <button class="control-btn" id="worker-demo-close">×</button>
+        </div>
+      </header>
+      <div class="code-editor-content" style="display:flex;flex-direction:column;gap:8px;padding:12px;">
+        <div style="margin-bottom: 8px;">
+          <button id="worker-init-btn" class="code-editor-button" style="width: 100%; margin-bottom: 4px;">Initialize Worker</button>
+          <button id="worker-start-btn" class="code-editor-button" style="width: 100%; margin-bottom: 4px;" disabled>Start Worker</button>
+          <button id="worker-stop-btn" class="code-editor-button" style="width: 100%; margin-bottom: 4px;" disabled>Stop Worker</button>
+        </div>
+        <div style="margin-bottom: 8px; padding: 8px; background: #fafafa; border: 1px solid #ddd; border-radius: 4px;">
+          <div style="font-weight: bold; margin-bottom: 4px;">Actions:</div>
+          <button id="worker-complex-calc" class="code-editor-button" style="width: 100%; margin-bottom: 4px;" disabled>Complex Calculation</button>
+        </div>
+        <div style="margin-top: 8px;">
+          <div style="font-weight: bold; margin-bottom: 4px;">Status:</div>
+              <div id="worker-status" style="padding: 8px; background: #fff; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 11px; max-height: 300px; overflow-y: auto;">
+            Worker not initialized
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/components/MenuItemComponent.js"></script>
     <script type="module" src="/src/logic/sketch.js"></script>
     <script type="module" src="/src/logic/ui.js"></script>
+    <script type="module" src="/src/logic/workerDemo.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {

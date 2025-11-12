@@ -337,6 +337,17 @@ class EditorUI {
             }
           ]
         },
+        animation: {
+          label: 'Sprite Sheet Animation',
+          properties: [
+            { id: 'frameWidth', label: 'Frame Width', type: 'number', value: item.frameWidth ?? null, min: 1, step: 1 },
+            { id: 'frameHeight', label: 'Frame Height', type: 'number', value: item.frameHeight ?? null, min: 1, step: 1 },
+            { id: 'totalFrames', label: 'Total Frames', type: 'number', value: item.totalFrames ?? 1, min: 1, step: 1 },
+            { id: 'framesPerRow', label: 'Frames Per Row', type: 'number', value: item.framesPerRow ?? 1, min: 1, step: 1 },
+            { id: 'currentFrame', label: 'Current Frame', type: 'number', value: item.currentFrame ?? 0, min: 0, step: 1 },
+            { id: 'animationSpeed', label: 'Animation Speed', type: 'number', value: item.animationSpeed ?? 10, min: 1, step: 1 }
+          ]
+        },
         behavior: {
           label: 'Behavior',
           properties: [

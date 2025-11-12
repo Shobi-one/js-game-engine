@@ -15,6 +15,14 @@ class Sprite {
     this.color = options.color ?? '#00ff00';
     this.image = options.image ?? null;
     this.imageUrl = options.imageUrl ?? null;
+    this.frameWidth = options.frameWidth ?? null;
+    this.frameHeight = options.frameHeight ?? null;
+    this.currentFrame = options.currentFrame ?? 0;
+    this.totalFrames = options.totalFrames ?? 1;
+    this.framesPerRow = options.framesPerRow ?? 1;
+    this.animationSpeed = options.animationSpeed ?? 10;
+    this._frameCounter = 0;
+    
     this.code = options.code ?? '// Write your sprite logic here\n// This code runs every frame\n\n// Example:\n// this.rotation += 1; // Rotate continuously\n// this.x += Math.sin(this.rotation) * 2; // Move in a wave pattern';
   }
 
@@ -54,6 +62,15 @@ class Sprite {
     
     if (isRunning) {
       this.runCode();
+      
+      // Auto-advance animation frames
+      if (this.totalFrames > 1) {
+        this._frameCounter++;
+        if (this._frameCounter >= this.animationSpeed) {
+          this._frameCounter = 0;
+          this.currentFrame = (this.currentFrame + 1) % this.totalFrames;
+        }
+      }
     }
     
     p.push();
@@ -62,7 +79,23 @@ class Sprite {
 
     if (this.image && this.image.width > 0) {
       p.imageMode(p.CENTER);
-      p.image(this.image, 0, 0, this.width, this.height);
+      
+      if (this.frameWidth && this.frameHeight && this.totalFrames > 1) {
+        const frameX = (this.currentFrame % this.framesPerRow) * this.frameWidth;
+        const frameY = Math.floor(this.currentFrame / this.framesPerRow) * this.frameHeight;
+        
+        p.push();
+        p.imageMode(p.CORNER);
+        p.translate(-this.width / 2, -this.height / 2);
+        p.image(
+          this.image, 
+          0, 0, this.width, this.height,  // destination
+          frameX, frameY, this.frameWidth, this.frameHeight  // source (frame from sheet)
+        );
+        p.pop();
+      } else {
+        p.image(this.image, 0, 0, this.width, this.height);
+      }
     } else {
       p.fill(this.color || '#00ff00');
       p.rect(0, 0, this.width, this.height);
@@ -221,9 +254,9 @@ const sketch = (p) => {
   p.draw = () => {
     p.background(0);
     if (gameController.isRunning) {
-      scene.drawAll(true);  // true = run sprite code
+      scene.drawAll(true);
     } else {
-      scene.drawAll(false); // false = just draw, don't run code
+      scene.drawAll(false); 
     }
   };
 
