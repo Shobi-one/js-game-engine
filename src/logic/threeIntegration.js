@@ -45,6 +45,36 @@ class EngineController {
     });
     
     this._initFileMenu();
+    this._initEditMenu();
+  }
+  
+  _initEditMenu() {
+    const editMenu = document.querySelector('menu-item[text="Edit"]');
+    const editDropdown = document.getElementById('edit-menu');
+    
+    if (editMenu && editDropdown) {
+      editMenu.addEventListener('click', () => {
+        editDropdown.style.display = editDropdown.style.display === 'block' ? 'none' : 'block';
+        editMenu.shadowRoot.querySelector('.menu-item').classList.toggle('active');
+        const rect = editMenu.getBoundingClientRect();
+        editDropdown.style.top = `${rect.bottom}px`;
+        editDropdown.style.left = `${rect.left}px`;
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!editMenu.contains(e.target) && !editDropdown.contains(e.target)) {
+          editDropdown.style.display = 'none';
+          editMenu.shadowRoot.querySelector('.menu-item').classList.remove('active');
+        }
+      });
+    }
+    
+    document.getElementById('open-audio-engine').addEventListener('click', () => {
+      if (window.audioUI) {
+        window.audioUI.show();
+      }
+      editDropdown.style.display = 'none';
+    });
   }
 
   _initFileMenu() {
@@ -75,6 +105,11 @@ class EngineController {
     
     document.getElementById('scene-2d-sample').addEventListener('click', () => {
       this._load2DScene('scenes/2d-sample.json');
+      fileDropdown.style.display = 'none';
+    });
+    
+    document.getElementById('scene-2d-audio-demo').addEventListener('click', () => {
+      this._load2DScene('scenes/2d-audio-demo.json');
       fileDropdown.style.display = 'none';
     });
     

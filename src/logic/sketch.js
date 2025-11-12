@@ -1,9 +1,13 @@
 import p5 from 'p5';
 import '../style.css';
+import { audioEngine } from './audioEngine.js';
 
 let p5Instance;
 
-let currentSceneType = '2d'; 
+let currentSceneType = '2d';
+
+// Make audio engine globally accessible
+window.audioEngine = audioEngine; 
 
 class Sprite {
   constructor(id, options = {}) {
@@ -24,6 +28,10 @@ class Sprite {
     this.framesPerRow = options.framesPerRow ?? 1;
     this.animationSpeed = options.animationSpeed ?? 10;
     this._frameCounter = 0;
+    
+    // Audio properties
+    this.audioEvents = options.audioEvents ?? [];
+    this.audioTriggers = options.audioTriggers ?? {};
     
     this.code = options.code ?? '// Write your sprite logic here\n// This code runs every frame\n\n// Example:\n// this.rotation += 1; // Rotate continuously\n// this.x += Math.sin(this.rotation) * 2; // Move in a wave pattern';
   }
@@ -53,8 +61,49 @@ class Sprite {
         const fn = new Function(code).bind(this);
         fn();
       }
+      
+      // Process audio events
+      this.processAudioEvents();
     } catch (err) {
       console.error(`Error in sprite ${this.id} code:`, err);
+    }
+  }
+  
+  processAudioEvents() {
+    // Check audio triggers based on sprite state
+    if (this.audioTriggers.onMove && this._lastX !== undefined) {
+      if (this.x !== this._lastX || this.y !== this._lastY) {
+        this.playAudio(this.audioTriggers.onMove);
+      }
+    }
+    
+    if (this.audioTriggers.onRotate && this._lastRotation !== undefined) {
+      if (this.rotation !== this._lastRotation) {
+        this.playAudio(this.audioTriggers.onRotate);
+      }
+    }
+    
+    // Store last values
+    this._lastX = this.x;
+    this._lastY = this.y;
+    this._lastRotation = this.rotation;
+  }
+  
+  playAudio(soundName, options = {}) {
+    if (audioEngine.initialized && soundName) {
+      audioEngine.playSound(soundName, options);
+    }
+  }
+  
+  playAudioOnce(eventName, soundName, options = {}) {
+    // Play sound once for a specific event
+    if (!this._audioEventsFired) {
+      this._audioEventsFired = new Set();
+    }
+    
+    if (!this._audioEventsFired.has(eventName)) {
+      this.playAudio(soundName, options);
+      this._audioEventsFired.add(eventName);
     }
   }
 

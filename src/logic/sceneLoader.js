@@ -1,3 +1,5 @@
+import { audioEngine } from './audioEngine.js';
+
 export class SceneLoader {
   static async load3DScene(path, threeScene) {
     try {
@@ -93,6 +95,11 @@ export class SceneLoader {
         scene._nextId = 0;
       }
       
+      // Load audio configuration if present
+      if (sceneData.audio) {
+        await this.loadAudioForScene(sceneData.audio);
+      }
+      
       if (sceneData.sprites) {
         sceneData.sprites.forEach(spriteData => {
           const sprite = {
@@ -101,7 +108,9 @@ export class SceneLoader {
             width: this._evalExpression(spriteData.width, p5Instance),
             height: this._evalExpression(spriteData.height, p5Instance),
             color: spriteData.color || '#00ff00',
-            code: spriteData.code || ''
+            code: spriteData.code || '',
+            audioEvents: spriteData.audioEvents || [],
+            audioTriggers: spriteData.audioTriggers || {}
           };
           
           scene.addSprite(sprite);
@@ -114,6 +123,81 @@ export class SceneLoader {
     } catch (error) {
       console.error('Error loading 2D scene:', error);
       throw error;
+    }
+  }
+  
+  static async loadAudioForScene(audioConfig) {
+    if (!audioEngine.initialized) {
+      console.warn('Audio engine not initialized. Audio will not be loaded.');
+      return;
+    }
+    
+    // Clear existing audio
+    audioEngine.clear();
+    
+    // Recreate default channels
+    audioEngine.createMixer('master', audioEngine.masterVolume);
+    audioEngine.createMixer('music');
+    audioEngine.createMixer('sfx');
+    audioEngine.createMixer('ambient');
+    audioEngine.mixers.get('music').channel.connect(audioEngine.masterVolume);
+    audioEngine.mixers.get('sfx').channel.connect(audioEngine.masterVolume);
+    audioEngine.mixers.get('ambient').channel.connect(audioEngine.masterVolume);
+    
+    try {
+      // Generate sounds
+      if (audioConfig.sounds) {
+        for (const soundConfig of audioConfig.sounds) {
+          const { name, type, channel, options } = soundConfig;
+          
+          switch (type) {
+            case 'synth':
+              audioEngine.generateSynth(name, { channel, ...options });
+              break;
+            case 'polysynth':
+              audioEngine.generatePolySynth(name, { channel, ...options });
+              break;
+            case 'noise':
+              audioEngine.generateNoise(name, { channel, ...options });
+              break;
+            case 'metal':
+              audioEngine.generateMetalSynth(name, { channel, ...options });
+              break;
+            case 'sample':
+              if (options.url) {
+                await audioEngine.loadSample(name, options.url, { channel, ...options });
+              }
+              break;
+          }
+        }
+      }
+      
+      // Create effects
+      if (audioConfig.effects) {
+        for (const effectConfig of audioConfig.effects) {
+          const { name, type, options } = effectConfig;
+          audioEngine.createEffect(name, type, options);
+          
+          // Apply effects to sounds
+          if (effectConfig.appliesTo) {
+            effectConfig.appliesTo.forEach(soundName => {
+              audioEngine.applyEffect(soundName, name);
+            });
+          }
+        }
+      }
+      
+      // Create mixes
+      if (audioConfig.mixes) {
+        for (const mixConfig of audioConfig.mixes) {
+          const { name, sounds, channel, volumes } = mixConfig;
+          audioEngine.createMix(name, sounds, { channel, volumes });
+        }
+      }
+      
+      console.log('Audio configuration loaded successfully');
+    } catch (error) {
+      console.error('Error loading audio configuration:', error);
     }
   }
   

@@ -28,10 +28,14 @@
         <menu-item text="Project"></menu-item>
         <menu-item text="Build"></menu-item>
       </div>
+      <div id="edit-menu" class="dropdown-menu">
+        <menu-item text="Audio Engine" id="open-audio-engine"></menu-item>
+      </div>
       <div id="file-menu" class="dropdown-menu">
         <div class="menu-section-header">2D Scenes (p5.js)</div>
         <menu-item text="New 2D Scene" id="scene-2d-new"></menu-item>
         <menu-item text="Sample 2D Scene" id="scene-2d-sample"></menu-item>
+        <menu-item text="Audio Demo Scene" id="scene-2d-audio-demo"></menu-item>
         <div class="menu-section-header menu-section-header-spaced">3D Scenes (Three.js)</div>
         <menu-item text="New Empty 3D Scene" id="scene-3d-empty"></menu-item>
         <menu-item text="Sample 3D Scene" id="scene-3d-example"></menu-item>
@@ -233,6 +237,11 @@
     <script type="module" src="/src/logic/ui.js"></script>
     <script type="module" src="/src/logic/workerDemo.js"></script>
     <script type="module" src="/src/logic/threeIntegration.js"></script>
+    <script type="module">
+      // Initialize Audio UI
+      import { AudioUI } from '/src/logic/audioUI.js';
+      window.audioUI = new AudioUI();
+    </script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
