@@ -1,13 +1,266 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>js-game</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#222222">
+  <link rel="stylesheet" href="/src/style.css">
+  <title>ClipEngine</title>
+</head>
+
+<body>
+  <div class="window">
+    <header>
+      <div class="title-bar">
+        <div class="title-text">
+          ClipEngine
+        </div>
+      </div>
+      <div class="menu-bar">
+        <menu-item text="File"></menu-item>
+        <menu-item text="Edit"></menu-item>
+        <menu-item text="Undo" id="undo-btn"></menu-item>
+        <menu-item text="Redo" id="redo-btn"></menu-item>
+        <menu-item text="Run"></menu-item>
+        <menu-item text="View"></menu-item>
+        <menu-item text="Project"></menu-item>
+        <menu-item text="Build"></menu-item>
+      </div>
+      <div id="edit-menu" class="dropdown-menu">
+        <menu-item text="Audio Engine" id="open-audio-engine"></menu-item>
+      </div>
+      <div id="file-menu" class="dropdown-menu">
+        <div class="menu-section-header">2D Scenes (p5.js)</div>
+        <menu-item text="New 2D Scene" id="scene-2d-new"></menu-item>
+        <menu-item text="Sample 2D Scene" id="scene-2d-sample"></menu-item>
+        <menu-item text="Audio Demo Scene" id="scene-2d-audio-demo"></menu-item>
+        <div class="menu-section-header menu-section-header-spaced">3D Scenes (Three.js)</div>
+        <menu-item text="New Empty 3D Scene" id="scene-3d-empty"></menu-item>
+        <menu-item text="Sample 3D Scene" id="scene-3d-example"></menu-item>
+      </div>
+      <div id="run-menu" class="dropdown-menu">
+        <menu-item text="Run Game" shortcut="F6" id="run-game"></menu-item>
+        <menu-item text="Stop Game" shortcut="Shift+F6" id="stop-game"></menu-item>
+      </div>
+      <div id="view-menu" class="dropdown-menu">
+        <menu-item text="2D Mode (p5.js)" id="view-2d"></menu-item>
+        <menu-item text="3D Mode (Three.js)" id="view-3d"></menu-item>
+        <menu-item text="Toggle Project Panel" id="toggle-project-panel"></menu-item>
+        <menu-item text="Toggle Properties Panel" id="toggle-properties-panel"></menu-item>
+      </div>
+      <div id="project-menu" class="dropdown-menu">
+        <menu-item text="Open RSS Feeds" id="open-rss-menu"></menu-item>
+        <menu-item text="Web Worker Demo" id="open-worker-demo"></menu-item>
+      </div>
+    </header>
+    <div class="main-content">
+      <div class="left-panel panel">
+        <div class="panel-title">Project Explorer</div>
+        <div class="tree-view" id="project-explorer">
+          <div class="context-menu" id="explorer-context-menu">
+            <div class="menu-item">Add Sprite</div>
+          </div>
+        </div>
+        <div class="tree-view hidden" id="three-explorer">
+          <div class="context-menu" id="three-context-menu">
+            <div class="menu-item" data-action="add-box">Add Box</div>
+            <div class="menu-item" data-action="add-sphere">Add Sphere</div>
+            <div class="menu-item" data-action="add-cylinder">Add Cylinder</div>
+            <div class="menu-item" data-action="add-cone">Add Cone</div>
+            <div class="menu-item" data-action="add-torus">Add Torus</div>
+            <div class="menu-item" data-action="add-plane">Add Plane</div>
+            <div class="menu-item" data-action="load-model">Load Model...</div>
+            <div class="menu-item" data-action="add-light">Add Light...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="center-panel panel">
+        <div class="panel-title">
+          <span id="viewport-title">Scene Viewport - 2D Mode</span>
+        </div>
+        <div class="viewport" id="canvas-container"></div>
+        <div class="viewport hidden" id="three-container"></div>
+      </div>
+
+      <div class="right-panel panel">
+        <div class="panel-title">Properties</div>
+        <div class="properties" id="properties-panel">
+          <div class="no-selection">
+            <div class="no-selection-text">No object selected</div>
+            <div class="no-selection-hint">Click on an object in the scene or project explorer to view and edit its
+              properties.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <modal-window id="code-editor-modal" title="Edit Sprite Logic" width="auto" height="80vh">
+      <div slot="content" class="code-editor-content-wrapper">
+        <textarea class="code-editor-textarea" id="code-editor-textarea" spellcheck="false"></textarea>
+      </div>
+      <div slot="footer">
+        <button class="code-editor-button" id="code-editor-apply">Apply</button>
+      </div>
+    </modal-window>
+
+    <modal-window id="rss-modal" title="RSS Feeds" width="700">
+      <div slot="content" class="flex-column">
+        <div class="flex-row">
+          <input id="rss-feed-1" placeholder="Feed URL 1" class="flex-1" />
+          <input id="rss-feed-2" placeholder="Feed URL 2 (optional)" class="flex-1" />
+        </div>
+        <div class="flex-row-center">
+          <input id="rss-proxy" placeholder="Optional CORS proxy (default: https://corsproxy.io/?)"
+            class="flex-1" />
+          <button id="rss-load-btn">Load</button>
+          <button id="rss-start-btn">Start Polling</button>
+          <button id="rss-stop-btn">Stop</button>
+        </div>
+        <div class="modal-tip">Tip: If remote feeds block CORS, set a CORS proxy like
+          <code>https://corsproxy.io/?</code> or <code>https://api.codetabs.com/v1/proxy?quest=</code></div>
+        <div id="rss-list" class="rss-list-container">
+        </div>
+      </div>
+    </modal-window>
+
+    <!-- Web Worker Demo Modal -->
+    <modal-window id="worker-demo-modal" title="Web Worker Demo" width="600">
+      <div slot="content" class="flex-column">
+        <div class="worker-button-group">
+          <button id="worker-init-btn" class="code-editor-button worker-button-full">Initialize Worker</button>
+          <button id="worker-start-btn" class="code-editor-button worker-button-full" disabled>Start Worker</button>
+          <button id="worker-stop-btn" class="code-editor-button worker-button-full" disabled>Stop Worker</button>
+        </div>
+        <div class="worker-action-box">
+          <div class="worker-section-title">Actions:</div>
+          <button id="worker-complex-calc" class="code-editor-button worker-button-full" disabled>Complex Calculation</button>
+        </div>
+        <div class="worker-section-spacing">
+          <div class="worker-section-title">Status:</div>
+          <div id="worker-status" class="worker-status-box">
+            Worker not initialized
+          </div>
+        </div>
+      </div>
+    </modal-window>
+
+    <modal-window id="model-loader-modal" title="Load 3D Model" width="500">
+      <div slot="content" class="form-group">
+        <div>
+          <label class="form-label">Model Type</label>
+          <select id="model-type" class="property-input full-width">
+            <option value="gltf">GLTF (.gltf, .glb)</option>
+            <option value="obj">OBJ (.obj)</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Model File</label>
+          <input type="file" id="model-file" accept=".gltf,.glb,.obj" class="property-input full-width">
+        </div>
+        <div>
+          <label class="form-label">Or URL</label>
+          <input type="text" id="model-url" placeholder="https://example.com/model.gltf" class="property-input full-width">
+        </div>
+        <div class="modal-tip">
+          Tip: You can find free 3D models at <a href="https://sketchfab.com" target="_blank">Sketchfab</a> or <a href="https://polyhaven.com" target="_blank">Poly Haven</a>
+        </div>
+      </div>
+      <div slot="footer">
+        <button id="model-load-btn" class="code-editor-button">Load Model</button>
+        <button id="model-cancel-btn" class="code-editor-button button-gray">Cancel</button>
+      </div>
+    </modal-window>
+
+    <modal-window id="light-creator-modal" title="Add Light" width="400">
+      <div slot="content" class="form-group">
+        <div>
+          <label class="form-label">Light Type</label>
+          <select id="light-type" class="property-input full-width">
+            <option value="ambient">Ambient Light</option>
+            <option value="directional">Directional Light</option>
+            <option value="point">Point Light</option>
+            <option value="spot">Spot Light</option>
+            <option value="hemisphere">Hemisphere Light</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Color</label>
+          <input type="color" id="light-color" value="#ffffff" class="property-input full-width">
+        </div>
+        <div>
+          <label class="form-label">Intensity</label>
+          <input type="range" id="light-intensity" min="0" max="5" step="0.1" value="1" class="property-input full-width">
+          <span id="light-intensity-value">1.0</span>
+        </div>
+      </div>
+      <div slot="footer">
+        <button id="light-create-btn" class="code-editor-button">Create Light</button>
+        <button id="light-cancel-btn" class="code-editor-button button-gray">Cancel</button>
+      </div>
+    </modal-window>
+
+    <!-- Floating Panels -->
+    <panel-modal id="floating-project-panel" title="Project Explorer" width="250" height="400">
+      <div slot="content" id="floating-project-content">
+        <div>
+          Project explorer content will appear here when toggled.
+        </div>
+      </div>
+    </panel-modal>
+
+    <panel-modal id="floating-properties-panel" title="Properties" width="300" height="500">
+      <div slot="content" id="floating-properties-content">
+        <div>
+          Properties panel content will appear here when toggled.
+        </div>
+      </div>
+    </panel-modal>
+
+    <script type="module" src="/src/components/ModalComponent.js"></script>
+    <script type="module" src="/src/components/PanelModalComponent.js"></script>
+    <script type="module" src="/src/components/MenuItemComponent.js"></script>
+    <script type="module" src="/src/logic/sketch.js"></script>
+    <script type="module" src="/src/logic/ui.js"></script>
+    <script type="module" src="/src/logic/workerDemo.js"></script>
+    <script type="module" src="/src/logic/threeIntegration.js"></script>
+    <script type="module">
+      import { AudioUI } from '/src/logic/audioUI.js';
+      window.audioUI = new AudioUI();
+
+      const toggleProjectPanel = document.getElementById('toggle-project-panel');
+      const togglePropertiesPanel = document.getElementById('toggle-properties-panel');
+      const floatingProjectPanel = document.getElementById('floating-project-panel');
+      const floatingPropertiesPanel = document.getElementById('floating-properties-panel');
+
+      if (toggleProjectPanel && floatingProjectPanel) {
+        toggleProjectPanel.addEventListener('click', () => {
+          floatingProjectPanel.toggle();
+        });
+      }
+
+      if (togglePropertiesPanel && floatingPropertiesPanel) {
+        togglePropertiesPanel.addEventListener('click', () => {
+          floatingPropertiesPanel.toggle();
+        });
+      }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(function (registration) {
+              console.log('ServiceWorker registration successful:', registration);
+            })
+            .catch(function (error) {
+              console.log('ServiceWorker registration failed:', error);
+            });
+        });
+      }
+    </script>
+  </div>
+</body>
+
 </html>
