@@ -277,7 +277,7 @@ class EditorUI {
           properties: [
             { id: 'width', label: 'Width', type: 'number', value: item.width ?? 50, min: 1, step: 1, validate: v => v > 0 },
             { id: 'height', label: 'Height', type: 'number', value: item.height ?? 50, min: 1, step: 1, validate: v => v > 0 },
-            { id: 'color', label: 'Color', type: 'text', value: item.color ?? '#00ff00', validate: v => /^#[0-9a-f]{6}$/i.test(v) },
+            { id: 'color', label: 'Color', type: 'color', value: item.color ?? '#00ff00' },
             {
               id: 'imageUrl',
               label: 'Image',

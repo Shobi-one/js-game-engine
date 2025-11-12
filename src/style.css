@@ -1,29 +1,24 @@
 :root {
-  /* Base scale */
   --space-xxs: 0.125rem;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 0.75rem;
   --space-lg: 1.25rem;
 
-  /* Borders & Shadows */
   --border-thin: 0.0625rem;
   --border: 0.125rem;
   --shadow-offset: 0.125rem;
 
-  /* Font sizes */
   --font-xs: 0.5rem;
   --font-sm: 0.6875rem;
   --font-md: 0.875rem;
   --font-lg: 1rem;
 
-  /* Layout widths */
   --sidebar-left: 12.5rem;
   --sidebar-right: 15.625rem;
   --max-width: 75rem;
   --window-height-offset: 2.5rem;
-
-  /* Colors */
+  
   --color-bg: #c0c0c0;
   --color-window: #008080;
   --color-dark: #000080;
@@ -498,4 +493,141 @@ body {
 
 .code-editor-button:active {
   border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark);
+}
+
+/* Dropdown menu section headers */
+.menu-section-header {
+  padding: 4px 12px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #666;
+  border-bottom: 1px solid #ccc;
+}
+
+.menu-section-header-spaced {
+  margin-top: 4px;
+}
+
+/* Hidden elements */
+.hidden {
+  display: none;
+}
+
+/* Modal widths */
+.modal-width-700 {
+  width: 700px;
+}
+
+.modal-width-600 {
+  width: 600px;
+}
+
+.modal-width-500 {
+  width: 500px;
+}
+
+.modal-width-400 {
+  width: 400px;
+}
+
+/* Flex layouts */
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.flex-row {
+  display: flex;
+  gap: 8px;
+}
+
+.flex-row-center {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* RSS and Worker Demo specific */
+.modal-tip {
+  font-size: 12px;
+  color: #777;
+}
+
+.rss-list-container {
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  padding: 8px;
+  background: #fafafa;
+}
+
+.worker-button-group {
+  margin-bottom: 8px;
+}
+
+.worker-button-full {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.worker-action-box {
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.worker-section-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.worker-status-box {
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.worker-section-spacing {
+  margin-top: 8px;
+}
+
+/* Model and Light Creator specific */
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.button-gray {
+  background: #666;
 }

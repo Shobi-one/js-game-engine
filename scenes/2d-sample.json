@@ -1,0 +1,51 @@
+{
+  "name": "Sample 2D Scene",
+  "type": "2d",
+  "sprites": [
+    {
+      "name": "Background",
+      "x": "width/2",
+      "y": "height/2",
+      "width": "width",
+      "height": "height",
+      "color": "#1a1a2e",
+      "code": "// Background - stays in place"
+    },
+    {
+      "name": "Rotating Square",
+      "x": "width/2",
+      "y": "height/2",
+      "width": 60,
+      "height": 60,
+      "color": "#00ff00",
+      "code": "this.rotation += 2;"
+    },
+    {
+      "name": "Bouncing Ball",
+      "x": "width/4",
+      "y": "height/2",
+      "width": 50,
+      "height": 50,
+      "color": "#ff0066",
+      "code": "if (!this.velocity) this.velocity = 3;\nif (!this.direction) this.direction = 1;\nthis.y += this.velocity * this.direction;\nif (this.y > height - 25 || this.y < 25) {\n  this.direction *= -1;\n}"
+    },
+    {
+      "name": "Moving Sprite",
+      "x": 50,
+      "y": "height/2",
+      "width": 40,
+      "height": 40,
+      "color": "#00d4ff",
+      "code": "this.x += 2;\nif (this.x > width + 20) this.x = -20;\nthis.rotation += 3;"
+    },
+    {
+      "name": "Pulsing Circle",
+      "x": "width*0.75",
+      "y": "height/2",
+      "width": 40,
+      "height": 40,
+      "color": "#ffaa00",
+      "code": "if (!this.time) this.time = 0;\nthis.time += 0.05;\nconst scale = 40 + Math.sin(this.time) * 20;\nthis.width = scale;\nthis.height = scale;"
+    }
+  ]
+}

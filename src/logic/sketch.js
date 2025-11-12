@@ -3,6 +3,8 @@ import '../style.css';
 
 let p5Instance;
 
+let currentSceneType = '2d'; 
+
 class Sprite {
   constructor(id, options = {}) {
     this.id = id;
@@ -63,7 +65,6 @@ class Sprite {
     if (isRunning) {
       this.runCode();
       
-      // Auto-advance animation frames
       if (this.totalFrames > 1) {
         this._frameCounter++;
         if (this._frameCounter >= this.animationSpeed) {
@@ -89,8 +90,8 @@ class Sprite {
         p.translate(-this.width / 2, -this.height / 2);
         p.image(
           this.image, 
-          0, 0, this.width, this.height,  // destination
-          frameX, frameY, this.frameWidth, this.frameHeight  // source (frame from sheet)
+          0, 0, this.width, this.height,  
+          frameX, frameY, this.frameWidth, this.frameHeight
         );
         p.pop();
       } else {
@@ -236,6 +237,10 @@ class GameController {
 const gameController = new GameController();
 window.gameController = gameController;
 
+window.setSceneType = function(type) {
+  currentSceneType = type;
+};
+
 const sketch = (p) => {
   p5Instance = p;
 
@@ -253,11 +258,13 @@ const sketch = (p) => {
 
   p.draw = () => {
     p.background(0);
-    if (gameController.isRunning) {
-      scene.drawAll(true);
-    } else {
-      scene.drawAll(false); 
-    }
+      if (currentSceneType === '2d') {
+        if (gameController.isRunning) {
+          scene.drawAll(true);
+        } else {
+          scene.drawAll(false);
+        }
+      }
   };
 
   p.windowResized = () => {

@@ -1,6 +1,6 @@
 {
-  "name": "Clipp Engine",
-  "short_name": "Clipp",
+  "name": "Clip Engine",
+  "short_name": "Clip",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
