@@ -1,4 +1,4 @@
-import { ThreeScene } from './threeScene.js';
+import { ThreeScene } from '../logic/threeScene.js';
 
 class ThreeEditorUI {
   constructor(threeScene) {
@@ -58,7 +58,6 @@ class ThreeEditorUI {
       }
     });
     
-    // Context menu items
     this.contextMenu.querySelectorAll('.menu-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -119,8 +118,6 @@ class ThreeEditorUI {
     this.codeEditorApply = document.getElementById('code-editor-apply');
     
     if (this.codeEditorModal) {
-      // Close button and ESC key are now handled by the modal component
-      
       this.codeEditorTextarea.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
           e.preventDefault();
@@ -365,7 +362,6 @@ class ThreeEditorUI {
     
     this._renderPropertyGroups(propertyGroups, obj, 'object');
     
-    // Delete button
     const deleteRow = document.createElement('div');
     deleteRow.style.display = 'flex';
     deleteRow.style.justifyContent = 'flex-end';
@@ -404,7 +400,6 @@ class ThreeEditorUI {
       }
     };
     
-    // Type-specific properties
     if (light.type === 'spot') {
       propertyGroups.spotlight = {
         label: 'Spotlight Settings',

@@ -303,8 +303,6 @@ class EngineController {
     const modelUrl = document.getElementById('model-url');
     const modelType = document.getElementById('model-type');
     
-    // Close button is now handled by the modal component
-    
     cancelBtn.addEventListener('click', () => {
       modal.hide();
     });
@@ -399,8 +397,6 @@ class EngineController {
     lightIntensity.addEventListener('input', () => {
       intensityValue.textContent = parseFloat(lightIntensity.value).toFixed(1);
     });
-    
-    // Close button is now handled by the modal component
     
     cancelBtn.addEventListener('click', () => {
       modal.hide();

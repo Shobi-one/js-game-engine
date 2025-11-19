@@ -1,4 +1,4 @@
-import { scene } from './sketch.js';
+import { scene } from '../logic/sketch.js';
 import '../style.css';
 
 class EditorUI {
@@ -51,9 +51,6 @@ class EditorUI {
   }
 
   _initCodeEditor() {
-    // Close button is now handled by the modal component
-    // ESC key is also handled by the modal component
-
     this.codeEditorTextarea.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         e.preventDefault();

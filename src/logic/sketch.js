@@ -5,8 +5,6 @@ import { audioEngine } from './audioEngine.js';
 let p5Instance;
 
 let currentSceneType = '2d';
-
-// Make audio engine globally accessible
 window.audioEngine = audioEngine; 
 
 class Sprite {
@@ -28,8 +26,6 @@ class Sprite {
     this.framesPerRow = options.framesPerRow ?? 1;
     this.animationSpeed = options.animationSpeed ?? 10;
     this._frameCounter = 0;
-    
-    // Audio properties
     this.audioEvents = options.audioEvents ?? [];
     this.audioTriggers = options.audioTriggers ?? {};
     
@@ -62,7 +58,6 @@ class Sprite {
         fn();
       }
       
-      // Process audio events
       this.processAudioEvents();
     } catch (err) {
       console.error(`Error in sprite ${this.id} code:`, err);
@@ -70,7 +65,6 @@ class Sprite {
   }
   
   processAudioEvents() {
-    // Check audio triggers based on sprite state
     if (this.audioTriggers.onMove && this._lastX !== undefined) {
       if (this.x !== this._lastX || this.y !== this._lastY) {
         this.playAudio(this.audioTriggers.onMove);
@@ -83,7 +77,6 @@ class Sprite {
       }
     }
     
-    // Store last values
     this._lastX = this.x;
     this._lastY = this.y;
     this._lastRotation = this.rotation;
@@ -96,7 +89,6 @@ class Sprite {
   }
   
   playAudioOnce(eventName, soundName, options = {}) {
-    // Play sound once for a specific event
     if (!this._audioEventsFired) {
       this._audioEventsFired = new Set();
     }

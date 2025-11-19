@@ -1,8 +1,5 @@
-import { audioEngine } from './audioEngine.js';
+import { audioEngine } from '../logic/audioEngine.js';
 
-/**
- * AudioUI - User interface for controlling audio engine
- */
 class AudioUI {
   constructor() {
     this.selectedSound = null;
@@ -206,7 +203,6 @@ class AudioUI {
       </div>
     `;
     
-    // Insert as modal (append to body)
     document.body.appendChild(panel);
   }
   
@@ -225,12 +221,10 @@ class AudioUI {
   }
   
   setupEventListeners() {
-    // Close button
     document.getElementById('audio-panel-close').addEventListener('click', () => {
       this.hide();
     });
     
-    // Initialize audio
     document.getElementById('audio-init-btn').addEventListener('click', async () => {
       const success = await audioEngine.init();
       if (success) {
@@ -239,7 +233,6 @@ class AudioUI {
       }
     });
     
-    // Tab switching
     document.querySelectorAll('.audio-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.audio-tab').forEach(t => t.classList.remove('active'));
@@ -263,7 +256,6 @@ class AudioUI {
       });
     });
     
-    // Generate sound
     document.getElementById('generate-sound-btn').addEventListener('click', () => {
       const name = document.getElementById('sound-name').value;
       const type = document.getElementById('sound-type').value;
@@ -296,7 +288,6 @@ class AudioUI {
       }
     });
     
-    // Load sample
     document.getElementById('load-sample-btn').addEventListener('click', async () => {
       const name = document.getElementById('sample-name').value;
       const file = document.getElementById('sample-file').files[0];
@@ -316,10 +307,8 @@ class AudioUI {
       }
     });
     
-    // Sound controls
     this.setupSoundControls();
     
-    // Create effect
     document.getElementById('create-effect-btn').addEventListener('click', () => {
       const name = document.getElementById('effect-name').value;
       const type = document.getElementById('effect-type').value;
@@ -337,17 +326,14 @@ class AudioUI {
       }
     });
     
-    // Effect controls
     this.setupEffectControls();
     
-    // Master volume
     document.getElementById('master-volume').addEventListener('input', (e) => {
       const value = parseFloat(e.target.value);
       audioEngine.setMasterVolume(value);
       document.getElementById('master-volume-value').textContent = `${value} dB`;
     });
     
-    // Create mix
     document.getElementById('create-mix-btn').addEventListener('click', () => {
       const name = document.getElementById('mix-name').value;
       const checkboxes = document.querySelectorAll('#mix-sounds-select input:checked');
@@ -368,7 +354,6 @@ class AudioUI {
   }
   
   setupSoundControls() {
-    // Volume
     document.getElementById('sound-volume').addEventListener('input', (e) => {
       const value = parseFloat(e.target.value);
       if (this.selectedSound) {
@@ -377,7 +362,6 @@ class AudioUI {
       }
     });
     
-    // Play/Stop
     document.getElementById('play-sound-btn').addEventListener('click', () => {
       if (this.selectedSound) {
         audioEngine.playSound(this.selectedSound);
@@ -390,7 +374,6 @@ class AudioUI {
       }
     });
     
-    // Synth controls
     document.getElementById('sound-osc-type').addEventListener('change', (e) => {
       if (this.selectedSound) {
         audioEngine.updateSound(this.selectedSound, { oscillatorType: e.target.value });
@@ -408,14 +391,12 @@ class AudioUI {
       });
     });
     
-    // Noise controls
     document.getElementById('sound-noise-type').addEventListener('change', (e) => {
       if (this.selectedSound) {
         audioEngine.updateSound(this.selectedSound, { noiseType: e.target.value });
       }
     });
     
-    // Sample controls
     document.getElementById('sound-playback-rate').addEventListener('input', (e) => {
       const value = parseFloat(e.target.value);
       if (this.selectedSound) {
@@ -432,7 +413,6 @@ class AudioUI {
   }
   
   setupEffectControls() {
-    // Wet/dry mix
     document.getElementById('effect-wet').addEventListener('input', (e) => {
       const value = parseFloat(e.target.value);
       if (this.selectedEffect) {
@@ -441,7 +421,6 @@ class AudioUI {
       }
     });
     
-    // Apply effect
     document.getElementById('apply-effect-btn').addEventListener('click', () => {
       const soundName = document.getElementById('effect-target-sound').value;
       if (this.selectedEffect && soundName) {
@@ -465,19 +444,16 @@ class AudioUI {
       `;
     }).join('');
     
-    // Add click listeners
     list.querySelectorAll('.audio-list-item').forEach(item => {
       item.addEventListener('click', () => {
         this.selectSound(item.dataset.sound);
       });
     });
     
-    // Update target sound dropdown
     const targetSelect = document.getElementById('effect-target-sound');
     targetSelect.innerHTML = '<option value="">Select sound...</option>' +
       sounds.map(name => `<option value="${name}">${name}</option>`).join('');
     
-    // Update mix sounds checkboxes
     const mixSoundsSelect = document.getElementById('mix-sounds-select');
     mixSoundsSelect.innerHTML = sounds.map(name => `
       <label class="audio-checkbox-label">
@@ -494,12 +470,10 @@ class AudioUI {
     document.getElementById('current-sound-name').textContent = name;
     document.getElementById('sound-controls').style.display = 'block';
     
-    // Hide all type-specific controls
     document.getElementById('synth-controls').style.display = 'none';
     document.getElementById('noise-controls').style.display = 'none';
     document.getElementById('sample-controls').style.display = 'none';
     
-    // Show relevant controls
     if (sound.type === 'synth' || sound.type === 'polysynth') {
       document.getElementById('synth-controls').style.display = 'block';
       if (sound.options.type) {
@@ -523,7 +497,6 @@ class AudioUI {
       document.getElementById('sound-loop').checked = sound.options.loop || false;
     }
     
-    // Highlight selected
     document.querySelectorAll('.audio-list-item').forEach(item => {
       item.classList.remove('selected');
     });
@@ -544,7 +517,6 @@ class AudioUI {
       `;
     }).join('');
     
-    // Add click listeners
     list.querySelectorAll('.audio-list-item').forEach(item => {
       item.addEventListener('click', () => {
         this.selectEffect(item.dataset.effect);
@@ -559,17 +531,13 @@ class AudioUI {
     document.getElementById('current-effect-name').textContent = name;
     document.getElementById('effect-controls').style.display = 'block';
     
-    // Update wet control
     this.setSliderValue('effect-wet', effect.options.wet || 0.5);
     
-    // Create type-specific controls
     const specificControls = document.getElementById('effect-specific-controls');
     specificControls.innerHTML = this.createEffectSpecificControls(effect);
-    
-    // Add event listeners to specific controls
+
     this.attachEffectSpecificListeners(effect);
     
-    // Highlight selected
     document.querySelectorAll('#effects-list .audio-list-item').forEach(item => {
       item.classList.remove('selected');
     });
@@ -652,7 +620,7 @@ class AudioUI {
     
     mixerChannels.innerHTML = mixers.map(name => {
       const mixer = audioEngine.mixers.get(name);
-      if (name === 'master') return ''; // Skip master, it has its own section
+      if (name === 'master') return '';
       
       return `
         <div class="mixer-channel">
