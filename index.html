@@ -32,11 +32,10 @@
         <menu-item text="Audio Engine" id="open-audio-engine"></menu-item>
       </div>
       <div id="file-menu" class="dropdown-menu">
-        <div class="menu-section-header">2D Scenes (p5.js)</div>
+        <div class="menu-section-header">2D Scenes</div>
         <menu-item text="New 2D Scene" id="scene-2d-new"></menu-item>
         <menu-item text="Sample 2D Scene" id="scene-2d-sample"></menu-item>
-        <menu-item text="Audio Demo Scene" id="scene-2d-audio-demo"></menu-item>
-        <div class="menu-section-header menu-section-header-spaced">3D Scenes (Three.js)</div>
+        <div class="menu-section-header menu-section-header-spaced">3D Scenes</div>
         <menu-item text="New Empty 3D Scene" id="scene-3d-empty"></menu-item>
         <menu-item text="Sample 3D Scene" id="scene-3d-example"></menu-item>
       </div>
@@ -201,7 +200,6 @@
       </div>
     </modal-window>
 
-    <!-- Floating Panels -->
     <panel-modal id="floating-project-panel" title="Project Explorer" width="250" height="400">
       <div slot="content" id="floating-project-content">
         <div>
@@ -222,11 +220,11 @@
     <script type="module" src="/src/components/PanelModalComponent.js"></script>
     <script type="module" src="/src/components/MenuItemComponent.js"></script>
     <script type="module" src="/src/logic/sketch.js"></script>
-    <script type="module" src="/src/logic/editorUI.js"></script>
+    <script type="module" src="/src/ui/p5UI.js"></script>
     <script type="module" src="/src/logic/workerDemo.js"></script>
     <script type="module" src="/src/logic/engineController.js"></script>
     <script type="module">
-      import { AudioUI } from '/src/logic/audioUI.js';
+      import { AudioUI } from '/src/ui/audioUI.js';
       window.audioUI = new AudioUI();
 
       const toggleProjectPanel = document.getElementById('toggle-project-panel');

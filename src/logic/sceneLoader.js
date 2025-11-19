@@ -95,7 +95,6 @@ export class SceneLoader {
         scene._nextId = 0;
       }
       
-      // Load audio configuration if present
       if (sceneData.audio) {
         await this.loadAudioForScene(sceneData.audio);
       }
@@ -132,10 +131,7 @@ export class SceneLoader {
       return;
     }
     
-    // Clear existing audio
     audioEngine.clear();
-    
-    // Recreate default channels
     audioEngine.createMixer('master', audioEngine.masterVolume);
     audioEngine.createMixer('music');
     audioEngine.createMixer('sfx');
@@ -145,7 +141,6 @@ export class SceneLoader {
     audioEngine.mixers.get('ambient').channel.connect(audioEngine.masterVolume);
     
     try {
-      // Generate sounds
       if (audioConfig.sounds) {
         for (const soundConfig of audioConfig.sounds) {
           const { name, type, channel, options } = soundConfig;
@@ -172,13 +167,11 @@ export class SceneLoader {
         }
       }
       
-      // Create effects
       if (audioConfig.effects) {
         for (const effectConfig of audioConfig.effects) {
           const { name, type, options } = effectConfig;
           audioEngine.createEffect(name, type, options);
           
-          // Apply effects to sounds
           if (effectConfig.appliesTo) {
             effectConfig.appliesTo.forEach(soundName => {
               audioEngine.applyEffect(soundName, name);
@@ -187,7 +180,6 @@ export class SceneLoader {
         }
       }
       
-      // Create mixes
       if (audioConfig.mixes) {
         for (const mixConfig of audioConfig.mixes) {
           const { name, sounds, channel, volumes } = mixConfig;
@@ -245,9 +237,6 @@ export class SceneLoader {
       '3d': [
         { name: 'Empty', path: 'scenes/3d-empty.json' },
         { name: 'Example', path: 'scenes/3d-example.json' },
-        { name: 'Lighting Demo', path: 'scenes/3d-lighting.json' },
-        { name: 'Animation Showcase', path: 'scenes/3d-animation.json' },
-        { name: 'Physics Playground', path: 'scenes/3d-physics.json' }
       ]
     };
     

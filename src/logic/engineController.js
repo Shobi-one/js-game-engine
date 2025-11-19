@@ -1,5 +1,5 @@
 import { ThreeScene } from './threeScene.js';
-import { ThreeEditorUI } from './threeUI.js';
+import { ThreeEditorUI } from '../ui/threeUI.js';
 import { SceneLoader } from './sceneLoader.js';
 
 class EngineController {
