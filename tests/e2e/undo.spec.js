@@ -146,3 +146,17 @@ test('Ctrl+Z in 3D mode leaves the 2D scene alone, and the code editor keeps its
   expect((await sprites(page)).length).toBe(1);
   expect(errors).toEqual([]);
 });
+
+test('Ctrl+V in a property field pastes text, not a copied object', async ({ page }) => {
+  const errors = trackErrors(page);
+  await open3D(page);
+  const id = await addBox(page);
+  await page.keyboard.press('Control+c');
+  const count = (await objects(page)).length;
+  const x = page.locator(`#prop-${id}-position\\.x`);
+  await x.focus();
+  await page.keyboard.press('Control+v');
+  await page.keyboard.press('Control+d');
+  expect((await objects(page)).length).toBe(count);
+  expect(errors).toEqual([]);
+});
