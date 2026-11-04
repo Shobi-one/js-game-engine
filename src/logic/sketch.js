@@ -282,6 +282,7 @@ class GameController {
   }
 
   stopGame() {
+    if (this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-stop', { detail: { mode: '2d' } }));
     this.isRunning = false;
     document.getElementById('canvas-container').classList.add('paused');
     document.getElementById('run-menu').style.display = 'none';

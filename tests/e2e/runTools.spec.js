@@ -42,6 +42,50 @@ test('Run → Reset Scene puts animated 3D objects back', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('Reset Scene goes back to before the first run, not the last Stop', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'scene-2d-sample');
+  await expect.poll(() => page.evaluate(() => window.scene.sprites.length)).toBeGreaterThan(2);
+  const before = await sampleState(page);
+
+  await clickMenu(page, 'run-game');
+  await expect.poll(() => sampleState(page)).not.toEqual(before);
+  await clickMenu(page, 'stop-game');
+  const paused = await sampleState(page);
+  await clickMenu(page, 'run-game');
+  await expect.poll(() => sampleState(page)).not.toEqual(paused);
+  await clickMenu(page, 'reset-game');
+  expect(await sampleState(page)).toEqual(before);
+  expect(errors).toEqual([]);
+});
+
+test('Reset Scene keeps an edit made after Stop', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'scene-2d-sample');
+  await expect.poll(() => page.evaluate(() => window.scene.sprites.length)).toBeGreaterThan(2);
+  const before = await sampleState(page);
+
+  await clickMenu(page, 'run-game');
+  await expect.poll(() => sampleState(page)).not.toEqual(before);
+  await clickMenu(page, 'stop-game');
+
+  // Change the first sprite's Y in the properties panel.
+  await page.locator('#project-explorer .tree-item').first().click();
+  const id = await page.evaluate(() => window.scene.sprites[0].id);
+  const y = page.locator(`#prop-${id}-y`);
+  await y.fill('42');
+  await y.dispatchEvent('change');
+  await expect.poll(() => page.evaluate(() => window.scene.sprites[0].y)).toBe(42);
+
+  await clickMenu(page, 'reset-game');
+  const expected = before.map((s, i) => (i === 0 ? [s[0], 42, s[2], s[3]] : s));
+  expect(await sampleState(page)).toEqual(expected);
+  await expect(y).toHaveValue('42');
+  expect(errors).toEqual([]);
+});
+
 test('Reset Scene does nothing before the first run', async ({ page }) => {
   const errors = trackErrors(page);
   await openEditor(page);

@@ -380,6 +380,7 @@ class ThreeScene {
   }
 
   stop() {
+    if (this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-stop', { detail: { mode: '3d' } }));
     this.isRunning = false;
   }
 
