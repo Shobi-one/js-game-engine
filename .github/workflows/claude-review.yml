@@ -37,5 +37,5 @@ jobs:
             comment with `gh pr comment`: what the PR does, the top risks, and whether
             it looks ready to merge. If there is nothing to fix, say so in one line.
           claude_args: |
-            --max-turns 20
+            --max-turns 40
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob"

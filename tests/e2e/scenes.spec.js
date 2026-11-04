@@ -9,6 +9,9 @@ const scenes2D = [
 const scenes3D = [
   { menu: 'scene-3d-empty', name: '3d-empty' },
   { menu: 'scene-3d-example', name: '3d-example' },
+  { menu: 'scene-3d-lighting', name: '3d-lighting' },
+  { menu: 'scene-3d-animation', name: '3d-animation' },
+  { menu: 'scene-3d-physics', name: '3d-physics' },
 ];
 
 test('editor loads with no errors', async ({ page }) => {
@@ -31,11 +34,27 @@ for (const { menu, name } of scenes2D) {
 }
 
 for (const { menu, name } of scenes3D) {
-  test(`3D scene ${name} loads`, async ({ page }) => {
+  test(`3D scene ${name} loads and runs`, async ({ page }) => {
     const errors = trackErrors(page);
     await openEditor(page);
     await clickMenu(page, menu);
     await expect(page.locator('#three-container canvas')).toBeVisible();
+    await page.waitForTimeout(300);
+    await clickMenu(page, 'run-game');
+    await page.waitForTimeout(500);
+    await clickMenu(page, 'stop-game');
     expect(errors).toEqual([]);
   });
 }
+
+test('3D example scene animates while running', async ({ page }) => {
+  await openEditor(page);
+  await clickMenu(page, 'scene-3d-example');
+  await expect(page.locator('#three-container canvas')).toBeVisible();
+  await page.waitForTimeout(300);
+  const snapshot = () =>
+    page.evaluate(() => window.threeScene.objects.map((o) => o.mesh.rotation.y + o.mesh.position.y).join(','));
+  const before = await snapshot();
+  await clickMenu(page, 'run-game');
+  await expect.poll(snapshot).not.toBe(before);
+});

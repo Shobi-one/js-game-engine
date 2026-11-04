@@ -1,0 +1,208 @@
+{
+  "name": "Lighting Demo",
+  "type": "3d",
+  "objects": [
+    {
+      "type": "plane",
+      "name": "Floor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": -1.5707963267948966,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 15,
+        "y": 15,
+        "z": 1
+      },
+      "color": "#ffffff",
+      "metalness": 0.8,
+      "roughness": 0.2
+    },
+    {
+      "type": "sphere",
+      "name": "Center Sphere",
+      "position": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "color": "#cccccc",
+      "metalness": 0.5,
+      "roughness": 0.3
+    },
+    {
+      "type": "box",
+      "name": "Object 1",
+      "position": {
+        "x": 4,
+        "y": 1,
+        "z": 0
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "cylinder",
+      "name": "Object 2",
+      "position": {
+        "x": 2.8284271247461903,
+        "y": 1,
+        "z": 2.82842712474619
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "box",
+      "name": "Object 3",
+      "position": {
+        "x": 2.4492935982947064e-16,
+        "y": 1,
+        "z": 4
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "cylinder",
+      "name": "Object 4",
+      "position": {
+        "x": -2.82842712474619,
+        "y": 1,
+        "z": 2.8284271247461903
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "box",
+      "name": "Object 5",
+      "position": {
+        "x": -4,
+        "y": 1,
+        "z": 4.898587196589413e-16
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "cylinder",
+      "name": "Object 6",
+      "position": {
+        "x": -2.8284271247461907,
+        "y": 1,
+        "z": -2.82842712474619
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "box",
+      "name": "Object 7",
+      "position": {
+        "x": -7.347880794884119e-16,
+        "y": 1,
+        "z": -4
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "type": "cylinder",
+      "name": "Object 8",
+      "position": {
+        "x": 2.8284271247461894,
+        "y": 1,
+        "z": -2.8284271247461907
+      },
+      "color": "#ffffff",
+      "metalness": 0.7,
+      "roughness": 0.3
+    }
+  ],
+  "lights": [
+    {
+      "type": "ambient",
+      "name": "Ambient Base",
+      "color": "#202020",
+      "intensity": 0.3
+    },
+    {
+      "type": "directional",
+      "name": "Sun",
+      "color": "#ffffcc",
+      "intensity": 0.8,
+      "position": {
+        "x": 10,
+        "y": 10,
+        "z": 5
+      },
+      "castShadow": true
+    },
+    {
+      "type": "point",
+      "name": "Red Light",
+      "color": "#ff0000",
+      "intensity": 1.5,
+      "position": {
+        "x": -3,
+        "y": 2,
+        "z": 0
+      }
+    },
+    {
+      "type": "point",
+      "name": "Blue Light",
+      "color": "#0000ff",
+      "intensity": 1.5,
+      "position": {
+        "x": 3,
+        "y": 2,
+        "z": 0
+      }
+    },
+    {
+      "type": "spot",
+      "name": "Spotlight",
+      "color": "#ffffff",
+      "intensity": 2,
+      "position": {
+        "x": 0,
+        "y": 8,
+        "z": 0
+      },
+      "target": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "angle": 0.5235987755982988,
+      "castShadow": true
+    },
+    {
+      "type": "hemisphere",
+      "name": "Sky Light",
+      "color": "#87ceeb",
+      "groundColor": "#8b4513",
+      "intensity": 0.5,
+      "position": {
+        "x": 0,
+        "y": 10,
+        "z": 0
+      }
+    }
+  ]
+}

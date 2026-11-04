@@ -75,7 +75,7 @@ It skips permission prompts. Commit or push your work first, so anything it does
 
 - Undo/redo for the 3D editor (the 2D editor in `ui.js` already has an undo stack).
 - `onCollide` events for 2D sprites.
-- Fix the known issues listed in `CLAUDE.md` (service worker not in the build, `listScenes()` naming missing scenes).
+- Fix the known issues listed in `CLAUDE.md` (missing app icons, the next files to split).
 - Export a scene as a standalone HTML game.
 
 ## When a screenshot test fails

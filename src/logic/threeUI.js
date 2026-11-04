@@ -1,4 +1,4 @@
-import { ThreeScene } from './threeScene.js';
+import { ThreeScene } from './three/ThreeScene.js';
 
 class ThreeEditorUI {
   constructor(threeScene) {

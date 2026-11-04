@@ -1,5 +1,12 @@
 import { audioEngine } from './audioEngine.js';
 
+// Material and behavior fields passed through to ThreeObject when a scene sets them.
+const OPTIONAL_OBJECT_FIELDS = ['metalness', 'roughness', 'wireframe', 'transparent', 'opacity', 'interactive', 'textureUrl'];
+
+function pick(source, keys) {
+  return Object.fromEntries(keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]));
+}
+
 export class SceneLoader {
   static async load3DScene(path, threeScene) {
     try {
@@ -26,7 +33,8 @@ export class SceneLoader {
             scale: objData.scale || { x: 1, y: 1, z: 1 },
             color: objData.color || '#ffffff',
             castShadow: objData.castShadow !== undefined ? objData.castShadow : true,
-            receiveShadow: objData.receiveShadow !== undefined ? objData.receiveShadow : true
+            receiveShadow: objData.receiveShadow !== undefined ? objData.receiveShadow : true,
+            ...pick(objData, OPTIONAL_OBJECT_FIELDS)
           });
           
           if (objData.animation && objData.animation.code) {

@@ -158,3 +158,23 @@ describe('SceneLoader._evalExpression without a p5 instance', () => {
     expect(SceneLoader._evalExpression('height', undefined)).toBe(480);
   });
 });
+
+describe('SceneLoader.load3DScene material fields', () => {
+  it('passes metalness, roughness and other optional fields through', async () => {
+    mockFetch({ name: 't', type: '3d', objects: [{ type: 'box', metalness: 0.9, roughness: 0.1, interactive: true }] });
+    const three = fake3DScene();
+    await SceneLoader.load3DScene('x.json', three);
+    expect(three.objects[0]).toMatchObject({ metalness: 0.9, roughness: 0.1, interactive: true });
+    expect(three.objects[0]).not.toHaveProperty('opacity');
+  });
+});
+
+describe('SceneLoader.listScenes', () => {
+  it('only lists scene files that exist', async () => {
+    const { existsSync } = await import('node:fs');
+    const all = await SceneLoader.listScenes();
+    for (const { path } of [...all['2d'], ...all['3d']]) {
+      expect(existsSync(resolve(__dirname, '../..', path)), path).toBe(true);
+    }
+  });
+});
