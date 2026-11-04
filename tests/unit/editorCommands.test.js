@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { commandForKey, isTypingIn } from '../../src/logic/editor/shortcuts.js';
+import { commandForKey, isTypingIn, shortcutApplies } from '../../src/logic/editor/shortcuts.js';
 import { spriteConfig, EditorClipboard } from '../../src/logic/editor/clipboard.js';
 import { objectSnapshot, lightSnapshot, copyFor, canSnapshot, currentValues } from '../../src/logic/three/editor/snapshots.js';
 
@@ -25,6 +25,23 @@ describe('editor shortcuts', () => {
     expect(isTypingIn(el('input', 'number'))).toBe(false);
     expect(isTypingIn(el('input', 'range'))).toBe(false);
     expect(isTypingIn(document.body)).toBe(false);
+  });
+});
+
+describe('where shortcuts apply', () => {
+  const el = (tag, type) => Object.assign(document.createElement(tag), type ? { type } : {});
+  it('leaves copy, paste and duplicate to any form field', () => {
+    for (const command of ['copy', 'paste', 'duplicate']) {
+      expect(shortcutApplies(command, el('input', 'number'))).toBe(false);
+      expect(shortcutApplies(command, el('select'))).toBe(false);
+      expect(shortcutApplies(command, document.body)).toBe(true);
+    }
+  });
+
+  it('still routes undo from a number field, which commits its edit on blur', () => {
+    expect(shortcutApplies('undo', el('input', 'number'))).toBe(true);
+    expect(shortcutApplies('undo', el('input', 'text'))).toBe(false);
+    expect(shortcutApplies('redo', el('textarea'))).toBe(false);
   });
 });
 
@@ -69,6 +86,9 @@ describe('3D snapshots', () => {
     const copy = copyFor(objectSnapshot(obj), 1);
     expect(copy.id).toBeUndefined();
     expect(copy).toMatchObject({ name: 'Box copy', position: v(2, 2, 3) });
+    // A light's target moves with it, so the copy points the same way.
+    const spot = copyFor(lightSnapshot({ id: 1, type: 'spot', name: 'S', position: v(0, 5, 0), target: v(1, 0, 0) }), 1);
+    expect(spot).toMatchObject({ position: v(1, 5, 0), target: v(2, 0, 0) });
   });
 
   it('skips imported models and records whole vectors as the previous value', () => {

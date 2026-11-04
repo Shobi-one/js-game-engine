@@ -162,7 +162,7 @@ class ThreeEditorUI {
 
   _step(take, push) {
     const action = take();
-    if (!action) return;
+    if (!action) return false;
     try {
       const inverse = this._invert(action);
       if (inverse) push(inverse);
@@ -170,14 +170,15 @@ class ThreeEditorUI {
       console.error('3D undo/redo failed', err);
     }
     this._refreshAfterHistory();
+    return true;
   }
 
   undo() {
-    this._step(() => this.history.takeUndo(), (a) => this.history.pushRedo(a));
+    return this._step(() => this.history.takeUndo(), (a) => this.history.pushRedo(a));
   }
 
   redo() {
-    this._step(() => this.history.takeRedo(), (a) => this.history.pushUndo(a));
+    return this._step(() => this.history.takeRedo(), (a) => this.history.pushUndo(a));
   }
 
   _refreshAfterHistory() {
@@ -223,21 +224,25 @@ class ThreeEditorUI {
 
   duplicate() {
     const sel = this._selected();
-    if (!sel || !canSnapshot(sel.kind, sel.item)) return;
+    if (!sel || !canSnapshot(sel.kind, sel.item)) return false;
     this._addCopy(sel.kind, copyFor(snapshotOf(sel.kind, sel.item), PASTE_OFFSET_3D));
+    return true;
   }
 
   copy() {
     const sel = this._selected();
-    if (sel && canSnapshot(sel.kind, sel.item)) editorClipboard.copy(sel.kind, snapshotOf(sel.kind, sel.item));
+    if (!sel || !canSnapshot(sel.kind, sel.item)) return false;
+    editorClipboard.copy(sel.kind, snapshotOf(sel.kind, sel.item));
+    return true;
   }
 
   paste() {
     const copied = editorClipboard.paste(['object', 'light']);
-    if (!copied) return;
+    if (!copied) return false;
     const item = this._addCopy(copied.kind, copyFor(copied.config, PASTE_OFFSET_3D));
     // The next paste lands a step further along.
     editorClipboard.copy(copied.kind, { ...snapshotOf(copied.kind, item), name: copied.config.name });
+    return true;
   }
 
   _showModelLoader() {

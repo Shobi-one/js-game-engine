@@ -163,25 +163,30 @@ class EditorUI {
 
   duplicate() {
     const sprite = this._selectedSprite();
-    if (sprite) this._addSpriteFromConfig(this._offset(spriteConfig(sprite)));
+    if (!sprite) return false;
+    this._addSpriteFromConfig(this._offset(spriteConfig(sprite)));
+    return true;
   }
 
   copy() {
     const sprite = this._selectedSprite();
-    if (sprite) editorClipboard.copy('sprite', spriteConfig(sprite));
+    if (!sprite) return false;
+    editorClipboard.copy('sprite', spriteConfig(sprite));
+    return true;
   }
 
   paste() {
     const copied = editorClipboard.paste(['sprite']);
-    if (!copied) return;
+    if (!copied) return false;
     // Each paste lands a step further, so repeated pastes don't stack exactly.
     const pasted = this._addSpriteFromConfig(this._offset(copied.config));
     editorClipboard.copy('sprite', spriteConfig(pasted));
+    return true;
   }
 
   undo() {
     const action = this.history.takeUndo();
-    if (!action) return;
+    if (!action) return false;
     try {
       if (action.type === 'create') {
         const res = this.scene.removeSprite(action.id);
@@ -217,11 +222,12 @@ class EditorUI {
     } catch (err) {
       console.error('Undo failed', err);
     }
+    return true;
   }
 
   redo() {
     const action = this.history.takeRedo();
-    if (!action) return;
+    if (!action) return false;
     try {
       if (action.type === 'create') {
         const idx = this.scene.insertSpriteAt(action.item, action.index);
@@ -251,6 +257,7 @@ class EditorUI {
     } catch (err) {
       console.error('Redo failed', err);
     }
+    return true;
   }
 
   selectItem(type, id) {
