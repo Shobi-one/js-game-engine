@@ -184,8 +184,11 @@ class ThreeScene {
     this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
   }
 
-  addObject(options) {
-    const obj = new ThreeObject(this._nextObjectId++, options);
+  /** Adds an object. `options.id` re-uses an id (undo re-creating a deleted object); `index` sets its place in the list. */
+  addObject(options, index = this.objects.length) {
+    const id = options.id ?? this._nextObjectId;
+    this._nextObjectId = Math.max(this._nextObjectId, id + 1);
+    const obj = new ThreeObject(id, options);
     const mesh = obj.createMesh();
     
     if (mesh) {
@@ -194,12 +197,14 @@ class ThreeScene {
       if (mesh.castShadow !== undefined) mesh.castShadow = true;
     }
     
-    this.objects.push(obj);
+    this.objects.splice(index, 0, obj);
     return obj;
   }
 
-  addLight(options) {
-    const light = new Light(this._nextLightId++, options);
+  addLight(options, index = this.lights.length) {
+    const id = options.id ?? this._nextLightId;
+    this._nextLightId = Math.max(this._nextLightId, id + 1);
+    const light = new Light(id, options);
     const lightObj = light.createLight();
     
     if (lightObj) {
@@ -209,7 +214,7 @@ class ThreeScene {
       }
     }
     
-    this.lights.push(light);
+    this.lights.splice(index, 0, light);
     return light;
   }
 

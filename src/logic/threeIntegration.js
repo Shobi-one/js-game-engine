@@ -158,6 +158,8 @@ class EngineController {
       this.sceneNames['2d'] = sceneData.name;
       
       if (window.editorUI) {
+        // Sprite ids start again at 0, so the old history would point at the wrong sprites.
+        window.editorUI.clearHistory();
         const explorer = document.getElementById('project-explorer');
         const treeItems = explorer.querySelectorAll('.tree-item');
         treeItems.forEach(item => item.remove());
@@ -199,6 +201,7 @@ class EngineController {
       this.sceneNames['3d'] = sceneData.name;
       
       if (this.threeUI) {
+        this.threeUI.clearHistory();
         this.threeUI._populateExplorer();
         this.threeUI.renderProperties(null);
       }
@@ -444,6 +447,7 @@ class EngineController {
       if (light && this.threeUI) {
         this.threeUI.addItemToExplorer(light, 'light');
         this.threeUI.selectItem('light', light.id);
+        this.threeUI.recordAdded('light', light);
       }
       
       modal.hide();
