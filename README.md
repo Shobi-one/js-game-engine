@@ -14,6 +14,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **Reset Scene and FPS** - Run → Reset Scene puts everything back the way it was before Run; View → Show FPS shows the frame rate
 - **Installable** - App icons and a manifest, so the editor can be installed as an app
 - **Save and Load** - Save your scene to a JSON file (Ctrl+S), open it again (Ctrl+O), and restore the autosave after a refresh
+- **Claude in the Editor** - Run Claude Code locally and it can build, edit, run and screenshot your scene through a local MCP server (see [docs/agents.md](docs/agents.md))
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport

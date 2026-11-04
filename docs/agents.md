@@ -13,6 +13,7 @@ ClipEngine is built with Claude Code as a pair programmer. This page says what i
 | Permissions | `.claude/settings.json` | Edits auto-accepted, safe commands allowlisted, `git push` and `npm install` ask, `rm -rf` and `curl` denied |
 | Tests | `tests/unit/`, `tests/e2e/` | Vitest unit tests, Playwright tests that load every scene with no console errors, screenshot comparison of the 2D and 3D samples |
 | CI | `.github/workflows/ci.yml` | Unit tests with coverage, build, browser and visual tests on every PR |
+| Editor MCP server | `mcp/` | Lets a local Claude Code session read and edit the scene open in the editor (see below) |
 | Agents in GitHub | `.github/workflows/claude.yml`, `claude-review.yml` | `@claude` on issues and PRs, and an automatic review on each new PR |
 
 ## One-time setup (about 10 minutes)
@@ -60,6 +61,35 @@ claude --settings .claude/settings.full.example.json
 ```
 
 It skips permission prompts. Commit or push your work first, so anything it does can be undone with git.
+
+## Claude in the editor (local MCP server)
+
+A Claude Code session on your PC can work inside the running editor: read the scene, add and change sprites, 3D objects and lights, write behavior code, run, stop and reset the game, load and export scenes, and take screenshots of the canvas. It all stays on your machine.
+
+1. In one terminal: `npm run dev`, and open http://localhost:5173/js-game-engine/.
+2. Once, register the server with Claude Code from the repo folder:
+   ```bash
+   claude mcp add clipengine -- node mcp/server.js
+   ```
+   This adds it for you, in this project only (use `-s project` instead to write a `.mcp.json` the repo shares). On Windows this works the same in PowerShell, as long as `node` is on your PATH.
+3. Start Claude Code in the repo folder (`claude`); `/mcp` should list `clipengine`.
+4. The **Claude** dot at the right of the menu bar turns green. Ask things like "add a red ball that bounces off the walls" or "why does the cube stop spinning?".
+
+How it fits together: Claude Code starts `mcp/server.js`, which listens on `127.0.0.1:7357` (set `CLIPENGINE_MCP_PORT` to change it). The editor connects to it when it runs from localhost, either on the dev server or when opened with `?claude` (or `?claude=PORT`) in the URL. The server only accepts pages served from localhost, so the live GitHub Pages site never connects. Every change goes through the editor's undo history, so Ctrl+Z undoes what Claude did; `load_scene` is the exception, because loading a scene clears the history.
+
+| Tool | What it does |
+|---|---|
+| `get_scene` | Mode, running or not, and every sprite, object and light with its id, code and last error |
+| `add_item`, `update_item`, `delete_item` | Change the scene; `update_item` with `code` also reports syntax errors |
+| `control` | Run, stop or reset (Run → Reset Scene) |
+| `history` | Undo or redo |
+| `set_mode` | Switch between 2D and 3D |
+| `load_scene`, `export_scene` | Open a built-in scene or scene JSON; get the open scene as JSON to save in `scenes/` |
+| `screenshot` | A PNG of the canvas or 3D view |
+
+To add a tool: describe it in `mcp/tools.js` and add its editor half to `src/logic/mcp/editorTools.js` with the same name (a unit test checks both lists match). `tests/e2e/mcp.spec.js` drives the real server end to end.
+
+If the dot stays grey: check that Claude Code is running in this repo and `/mcp` lists `clipengine`. If another Claude Code session already uses port 7357, the tools say so; close that session or set another port. Claude talks to one editor tab, the newest: an older tab goes grey and stays unlinked until you reload it.
 
 ## The feature loop
 
