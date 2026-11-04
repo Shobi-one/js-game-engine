@@ -34,7 +34,7 @@ Directed by Obi and carried out by Claude Code, following the plan → tests →
 
 - TypeScript, a framework, or new dependencies
 - Changing how scenes look or behave (screenshot baselines must not change)
-- `audioEngine.js`, `audioUI.js` and `threeUI.js`, which come next if this goes well
+- `audioEngine.js`, `audioUI.js` and `threeUI.js`, which come next if this goes well (done in round 2, below)
 
 ## How we know it worked
 
@@ -51,5 +51,25 @@ Directed by Obi and carried out by Claude Code, following the plan → tests →
 | Behavior code | compiled every frame | compiled once per code string (`behavior.js`) |
 | Unit tests | 21 | 45 |
 | Browser tests | 8 | 16 |
+
+The screenshot baselines were not changed.
+
+## Round 2
+
+Same rules: safety-net tests first, one commit per file, screenshot baselines untouched.
+
+| File | Before | After |
+|---|---|---|
+| `audioEngine.js` | 691 | 440, plus `audio/effects.js` (effect table) and `audio/instruments.js` (instrument table, triggering, live updates) |
+| `audioUI.js` | 706 | 373, plus `audio/panelTemplate.js`, `audio/effectControls.js` (slider table) and `audio/lists.js` |
+| `threeUI.js` | 584 | 257, plus `three/editor/propertyDefs.js` and `three/editor/propertyForm.js` |
+| Unit tests | 46 | 74 |
+| Browser tests | 20 | 25 |
+
+Bugs the new tests found, each fixed in its own commit:
+
+- Editing one axis of a 3D position, rotation or scale reset the other two (`three/vectors.js`).
+- An effect option set to 0, such as feedback 0, was replaced by its default.
+- Sound, effect and channel names were rendered as HTML in the audio panel, so a name could run script. They are text now.
 
 The screenshot baselines were not changed.
