@@ -1,5 +1,7 @@
 import { scene } from './sketch.js';
-import { UndoHistory } from './editor/undoHistory.js';
+import { UndoHistory, mergeUpdates } from './editor/undoHistory.js';
+import { initEditorShortcuts } from './editor/shortcuts.js';
+import { editorClipboard, spriteConfig, PASTE_OFFSET_2D } from './editor/clipboard.js';
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
 import { initRunReset } from './runReset.js';
@@ -32,26 +34,8 @@ class EditorUI {
       this._initCodeEditor();
     }
 
+    // Ctrl+Z, Ctrl+Y and the Undo/Redo menu reach undo() and redo() through editor/shortcuts.js.
     this.history = new UndoHistory();
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        this.undo();
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        this.redo();
-        return;
-      }
-    });
-
-    const undoBtn = document.querySelector('menu-item[text="Undo"]');
-    if (undoBtn) undoBtn.addEventListener('click', () => this.undo());
-    const redoBtn = document.querySelector('menu-item[text="Redo"]');
-    if (redoBtn) redoBtn.addEventListener('click', () => this.redo());
   }
 
   _initCodeEditor() {
@@ -140,13 +124,71 @@ class EditorUI {
     });
   }
 
-  _pushUndo(action) {
-    this.history.record(action);
+  clearHistory() {
+    this.history = new UndoHistory();
+  }
+
+  _pushUndo(action, merge = null) {
+    this.history.record(action, merge);
+  }
+
+  /** Applies a properties-panel edit and records it, so one slider drag is one undo step. */
+  _updateFromPanel(id, update) {
+    const sprite = this.scene.getItem('sprite', id);
+    if (!sprite) return;
+    const prev = Object.fromEntries(Object.keys(update).map((k) => [k, structuredClone(sprite[k])]));
+    const action = { type: 'update', kind: 'sprite', id, prev, at: Date.now() };
+    this.scene.updateSprite(id, update);
+    // A change event that repeats the current value is not an edit.
+    const after = Object.fromEntries(Object.keys(update).map((k) => [k, sprite[k]]));
+    if (JSON.stringify(after) === JSON.stringify(prev)) return;
+    this._pushUndo(action, mergeUpdates(action));
+  }
+
+  _selectedSprite() {
+    if (this.selectedItem?.type !== 'sprite') return null;
+    return this.scene.getItem('sprite', this.selectedItem.id);
+  }
+
+  _addSpriteFromConfig(config) {
+    const sprite = this.scene.addSprite(config);
+    // update() is what loads an image.
+    if (config.imageUrl) sprite.update({ imageUrl: config.imageUrl });
+    this.addItemToExplorer(sprite);
+    this._pushUndo({ type: 'create', id: sprite.id });
+    return sprite;
+  }
+
+  _offset(config) {
+    return { ...config, x: config.x + PASTE_OFFSET_2D, y: config.y + PASTE_OFFSET_2D };
+  }
+
+  duplicate() {
+    const sprite = this._selectedSprite();
+    if (!sprite) return false;
+    this._addSpriteFromConfig(this._offset(spriteConfig(sprite)));
+    return true;
+  }
+
+  copy() {
+    const sprite = this._selectedSprite();
+    if (!sprite) return false;
+    editorClipboard.copy('sprite', spriteConfig(sprite));
+    return true;
+  }
+
+  paste() {
+    const copied = editorClipboard.paste(['sprite']);
+    if (!copied) return false;
+    // Each paste lands a step further, so repeated pastes don't stack exactly.
+    const pasted = this._addSpriteFromConfig(this._offset(copied.config));
+    editorClipboard.copy('sprite', spriteConfig(pasted));
+    return true;
   }
 
   undo() {
     const action = this.history.takeUndo();
-    if (!action) return;
+    if (!action) return false;
     try {
       if (action.type === 'create') {
         const res = this.scene.removeSprite(action.id);
@@ -182,11 +224,12 @@ class EditorUI {
     } catch (err) {
       console.error('Undo failed', err);
     }
+    return true;
   }
 
   redo() {
     const action = this.history.takeRedo();
-    if (!action) return;
+    if (!action) return false;
     try {
       if (action.type === 'create') {
         const idx = this.scene.insertSpriteAt(action.item, action.index);
@@ -216,6 +259,7 @@ class EditorUI {
     } catch (err) {
       console.error('Redo failed', err);
     }
+    return true;
   }
 
   selectItem(type, id) {
@@ -261,9 +305,7 @@ class EditorUI {
       const groups = spritePropertyGroups(item, {
         onEditCode: (target, onChange) => this._showCodeEditor(target, target.code, onChange),
       });
-      renderPropertyForm(this.propertiesPanel, item, groups, (update) => {
-        this.scene?.updateSprite?.(Number(item.id), update);
-      });
+      renderPropertyForm(this.propertiesPanel, item, groups, (update) => this._updateFromPanel(Number(item.id), update));
 
       const deleteRow = document.createElement('div');
       deleteRow.style.display = 'flex';
@@ -316,6 +358,7 @@ class EditorUI {
 
 const ui = new EditorUI(scene);
 window.editorUI = ui;
+initEditorShortcuts();
 initRunReset();
 initFpsCounter();
 
