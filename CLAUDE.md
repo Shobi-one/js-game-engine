@@ -5,6 +5,7 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 
 ## Architecture in ten lines
 
+- `public/service-worker.js` is copied as-is to `dist/` (network first, cache as offline fallback). Bump `CACHE_NAME` when you change it.
 - `index.html` is the whole editor UI: menus, panels and modals. It loads every module in `src/` with `<script type="module">`.
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
 - `src/logic/threeScene.js`: the 3D side. `ThreeObject`, `Light` and `ThreeScene`, rendered in `#three-container`.
@@ -49,6 +50,5 @@ First Playwright run on a new machine: `npx playwright install chromium`.
 
 ## Known issues
 
-- `service-worker.js` is not copied into `dist/`, so its registration fails on the built site. The e2e helper ignores that one error. Fix it and remove the entry in `tests/e2e/helpers.js`.
 - `SceneLoader.listScenes()` lists 3D scenes (`3d-lighting`, `3d-animation`, `3d-physics`) that do not exist in `scenes/`.
 - `threeScene.js` (about 1,100 lines) and `ui.js` (about 740) are due for a planned split. Behaviors are recompiled with `new Function` every frame.

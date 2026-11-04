@@ -115,7 +115,7 @@ js-game-engine/
 │   └── 3d-example.json
 ├── index.html            # Main entry point
 ├── manifest.json         # PWA manifest
-├── service-worker.js     # Service worker for PWA
+├── public/service-worker.js  # Service worker for PWA (copied to dist/)
 ├── CODE_EXAMPLES.js      # Animation code snippets
 └── vite.config.js        # Build configuration
 ```

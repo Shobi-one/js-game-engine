@@ -2,10 +2,7 @@ import { expect } from '@playwright/test';
 
 // Collects console errors and uncaught exceptions so a test can assert there were none.
 // Known issues that exist on main today. Remove an entry once it is fixed.
-const KNOWN_ERRORS = [
-  // service-worker.js is not copied into dist/, so its registration 404s in the build.
-  /unsupported MIME type \('text\/html'\)/,
-];
+const KNOWN_ERRORS = [];
 
 export function trackErrors(page) {
   const errors = [];
