@@ -2,6 +2,7 @@ import { scene } from './sketch.js';
 import { UndoHistory, mergeUpdates } from './editor/undoHistory.js';
 import { initEditorShortcuts } from './editor/shortcuts.js';
 import { initSnapMenu } from './editor/snapSettings.js';
+import { initCanvasDrag } from './editor/canvasDrag.js';
 import { editorClipboard, spriteConfig, PASTE_OFFSET_2D } from './editor/clipboard.js';
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
@@ -142,6 +143,12 @@ class EditorUI {
     const after = Object.fromEntries(Object.keys(update).map((k) => [k, sprite[k]]));
     if (JSON.stringify(after) === JSON.stringify(prev)) return;
     this._pushUndo(action, mergeUpdates(action));
+  }
+
+  /** A finished canvas drag: one undo step back to `start`. */
+  recordMove(id, start) {
+    this._pushUndo({ type: 'update', kind: 'sprite', id, prev: { x: start.x, y: start.y }, at: Date.now() });
+    if (this.selectedItem?.id === Number(id)) this.renderProperties(this.scene.getItem('sprite', id));
   }
 
   _selectedSprite() {
@@ -352,5 +359,11 @@ const ui = new EditorUI(scene);
 window.editorUI = ui;
 initEditorShortcuts();
 initSnapMenu();
+initCanvasDrag({
+  container: document.getElementById('canvas-container'),
+  scene,
+  editor: ui,
+  canEdit: () => (window.engineController?.mode ?? '2d') === '2d' && !window.gameController?.isRunning,
+});
 
 export { EditorUI };
