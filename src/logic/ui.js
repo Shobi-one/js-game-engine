@@ -9,6 +9,7 @@ import { RssPanel } from './rss/rssPanel.js';
 import { openCodeEditor, preloadCodeEditor } from './editor/codeEditor.js';
 import { initRunReset } from './runReset.js';
 import { initFpsCounter } from './fpsCounter.js';
+import { initClaudeBridge } from './mcp/bridgeClient.js';
 import '../style.css';
 
 class EditorUI {
@@ -115,6 +116,19 @@ class EditorUI {
   recordMove(id, start) {
     this._pushUndo({ type: 'update', kind: 'sprite', id, prev: { x: start.x, y: start.y }, at: Date.now() });
     if (this.selectedItem?.id === Number(id)) this.renderProperties(this.scene.getItem('sprite', id));
+  }
+
+  /** Deletes a sprite as one undo step. False if there is no such sprite. */
+  deleteSprite(id) {
+    const res = this.scene.removeSprite(id);
+    if (!res) return false;
+    this._pushUndo({ type: 'delete', item: res.removed, index: res.index });
+    this.projectExplorer.querySelector(`.tree-item[data-id="${id}"]`)?.remove();
+    if (this.selectedItem?.id === id) {
+      this.selectedItem = null;
+      this.renderProperties(null);
+    }
+    return true;
   }
 
   _selectedSprite() {
@@ -288,14 +302,7 @@ class EditorUI {
       deleteBtn.className = 'code-editor-button';
       deleteBtn.addEventListener('click', () => {
         try {
-          const res = this.scene.removeSprite(Number(item.id));
-          if (res) {
-            this._pushUndo({ type: 'delete', item: res.removed, index: res.index });
-            const el = this.projectExplorer.querySelector(`.tree-item[data-id="${item.id}"]`);
-            if (el) el.remove();
-            this.selectedItem = null;
-            this.renderProperties(null);
-          }
+          this.deleteSprite(Number(item.id));
         } catch (err) {
           console.error('Delete failed', err);
         }
@@ -341,5 +348,6 @@ initCanvasDrag({
 preloadCodeEditor();
 initRunReset();
 initFpsCounter();
+initClaudeBridge();
 
 export { EditorUI };

@@ -325,6 +325,33 @@ body {
   z-index: 5;
 }
 
+/* Local MCP link (src/logic/mcp/bridgeClient.js): grey while waiting, green when connected. */
+.claude-status {
+  margin-left: auto;
+  align-self: center;
+  padding: 0 8px;
+  font-size: var(--font-sm);
+  color: var(--color-text-dark);
+}
+
+.claude-status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--color-gray-light);
+}
+
+.claude-status[data-state='connected']::before {
+  background: #008000;
+}
+
+.claude-status[hidden] {
+  display: none;
+}
+
 .fps-counter[hidden] {
   display: none;
 }

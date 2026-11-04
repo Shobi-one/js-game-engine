@@ -4,7 +4,7 @@ import { downloadJSON, fileNameFor, pickSceneFile, readAutosave, writeAutosave }
 const AUTOSAVE_INTERVAL_MS = 3000;
 
 /** The scene that is open now, as scene JSON. */
-function currentScene(engine) {
+export function currentScene(engine) {
   if (engine.mode === '3d' && engine.threeScene) {
     const { data, skipped } = serialize3DScene(engine.threeScene, { name: engine.sceneNames?.['3d'] || 'Untitled 3D Scene' });
     return { data, skipped };
@@ -18,7 +18,7 @@ function isRunning(engine) {
   return engine.mode === '3d' ? Boolean(engine.threeScene?.isRunning) : Boolean(window.gameController?.isRunning);
 }
 
-async function openScene(engine, data) {
+export async function openScene(engine, data) {
   if (data.type === '3d') await engine._loadPresetScene(data);
   else await engine._load2DScene(data);
 }
