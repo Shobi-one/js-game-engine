@@ -3,135 +3,146 @@ import { audioEngine } from './audioEngine.js';
 // Material and behavior fields passed through to ThreeObject when a scene sets them.
 const OPTIONAL_OBJECT_FIELDS = ['metalness', 'roughness', 'wireframe', 'transparent', 'opacity', 'interactive', 'textureUrl'];
 
+// Sprite fields passed through when a scene sets them (saved scenes write all of them).
+const OPTIONAL_SPRITE_FIELDS = ['rotation', 'frameWidth', 'frameHeight', 'totalFrames', 'framesPerRow', 'animationSpeed'];
+
 function pick(source, keys) {
   return Object.fromEntries(keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]));
 }
 
 export class SceneLoader {
+  static async fetchScene(path) {
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`Failed to load scene: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
   static async load3DScene(path, threeScene) {
     try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed to load scene: ${response.statusText}`);
-      }
-      
-      const sceneData = await response.json();
-      
-      if (sceneData.type !== '3d') {
-        throw new Error('Invalid scene type. Expected 3D scene.');
-      }
-      
-      threeScene.clearScene();
-      
-      if (sceneData.objects) {
-        sceneData.objects.forEach(objData => {
-          const obj = threeScene.addObject({
-            type: objData.type,
-            name: objData.name,
-            position: objData.position || { x: 0, y: 0, z: 0 },
-            rotation: objData.rotation || { x: 0, y: 0, z: 0 },
-            scale: objData.scale || { x: 1, y: 1, z: 1 },
-            color: objData.color || '#ffffff',
-            castShadow: objData.castShadow !== undefined ? objData.castShadow : true,
-            receiveShadow: objData.receiveShadow !== undefined ? objData.receiveShadow : true,
-            ...pick(objData, OPTIONAL_OBJECT_FIELDS)
-          });
-          
-          if (objData.animation && objData.animation.code) {
-            obj.code = objData.animation.code;
-          }
-        });
-      }
-      
-      if (sceneData.lights) {
-        sceneData.lights.forEach(lightData => {
-          const config = {
-            type: lightData.type,
-            name: lightData.name,
-            color: lightData.color || '#ffffff',
-            intensity: lightData.intensity !== undefined ? lightData.intensity : 1
-          };
-          
-          if (lightData.position) config.position = lightData.position;
-          if (lightData.castShadow !== undefined) config.castShadow = lightData.castShadow;
-          if (lightData.distance !== undefined) config.distance = lightData.distance;
-          if (lightData.angle !== undefined) config.angle = lightData.angle;
-          if (lightData.penumbra !== undefined) config.penumbra = lightData.penumbra;
-          if (lightData.target) config.target = lightData.target;
-          if (lightData.skyColor) config.skyColor = lightData.skyColor;
-          if (lightData.groundColor) config.groundColor = lightData.groundColor;
-          
-          threeScene.addLight(config);
-        });
-      }
-      
-      if (sceneData.camera) {
-        if (sceneData.camera.position) {
-          const pos = sceneData.camera.position;
-          threeScene.camera.position.set(pos.x, pos.y, pos.z);
-        }
-        if (sceneData.camera.lookAt) {
-          const lookAt = sceneData.camera.lookAt;
-          threeScene.camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
-        }
-      }
-      
-      console.log(`Loaded 3D scene: ${sceneData.name}`);
-      return sceneData;
-      
+      return this.apply3DScene(await this.fetchScene(path), threeScene);
     } catch (error) {
       console.error('Error loading 3D scene:', error);
       throw error;
     }
   }
+
+  /** Replaces the 3D scene with scene data (from a file in scenes/, a saved file or the autosave). */
+  static apply3DScene(sceneData, threeScene) {
+    if (sceneData.type !== '3d') {
+      throw new Error('Invalid scene type. Expected 3D scene.');
+    }
+    
+    threeScene.clearScene();
+    
+    if (sceneData.objects) {
+      sceneData.objects.forEach(objData => {
+        const obj = threeScene.addObject({
+          type: objData.type,
+          name: objData.name,
+          position: objData.position || { x: 0, y: 0, z: 0 },
+          rotation: objData.rotation || { x: 0, y: 0, z: 0 },
+          scale: objData.scale || { x: 1, y: 1, z: 1 },
+          color: objData.color || '#ffffff',
+          castShadow: objData.castShadow !== undefined ? objData.castShadow : true,
+          receiveShadow: objData.receiveShadow !== undefined ? objData.receiveShadow : true,
+          ...pick(objData, OPTIONAL_OBJECT_FIELDS)
+        });
+        
+        if (objData.animation && objData.animation.code) {
+          obj.code = objData.animation.code;
+        }
+      });
+    }
+    
+    if (sceneData.lights) {
+      sceneData.lights.forEach(lightData => {
+        const config = {
+          type: lightData.type,
+          name: lightData.name,
+          color: lightData.color || '#ffffff',
+          intensity: lightData.intensity !== undefined ? lightData.intensity : 1
+        };
+        
+        if (lightData.position) config.position = lightData.position;
+        if (lightData.castShadow !== undefined) config.castShadow = lightData.castShadow;
+        if (lightData.distance !== undefined) config.distance = lightData.distance;
+        if (lightData.angle !== undefined) config.angle = lightData.angle;
+        if (lightData.penumbra !== undefined) config.penumbra = lightData.penumbra;
+        if (lightData.decay !== undefined) config.decay = lightData.decay;
+        if (lightData.target) config.target = lightData.target;
+        if (lightData.skyColor) config.skyColor = lightData.skyColor;
+        if (lightData.groundColor) config.groundColor = lightData.groundColor;
+        
+        threeScene.addLight(config);
+      });
+    }
+    
+    if (sceneData.camera) {
+      if (sceneData.camera.position) {
+        const pos = sceneData.camera.position;
+        threeScene.camera.position.set(pos.x, pos.y, pos.z);
+      }
+      if (sceneData.camera.lookAt) {
+        const lookAt = sceneData.camera.lookAt;
+        threeScene.camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
+      }
+    }
+    
+    console.log(`Loaded 3D scene: ${sceneData.name}`);
+    return sceneData;
+  }
   
   static async load2DScene(path, scene, p5Instance) {
     try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed to load scene: ${response.statusText}`);
-      }
-      
-      const sceneData = await response.json();
-      
-      if (sceneData.type !== '2d') {
-        throw new Error('Invalid scene type. Expected 2D scene.');
-      }
-      
-      if (scene.sprites) {
-        scene.sprites = [];
-        scene._nextId = 0;
-      }
-      
-      // Load audio configuration if present
-      if (sceneData.audio) {
-        await this.loadAudioForScene(sceneData.audio);
-      }
-      
-      if (sceneData.sprites) {
-        sceneData.sprites.forEach(spriteData => {
-          const sprite = {
-            x: this._evalExpression(spriteData.x, p5Instance),
-            y: this._evalExpression(spriteData.y, p5Instance),
-            width: this._evalExpression(spriteData.width, p5Instance),
-            height: this._evalExpression(spriteData.height, p5Instance),
-            color: spriteData.color || '#00ff00',
-            code: spriteData.code || '',
-            audioEvents: spriteData.audioEvents || [],
-            audioTriggers: spriteData.audioTriggers || {}
-          };
-          
-          scene.addSprite(sprite);
-        });
-      }
-      
-      console.log(`Loaded 2D scene: ${sceneData.name}`);
-      return sceneData;
-      
+      return await this.apply2DScene(await this.fetchScene(path), scene, p5Instance);
     } catch (error) {
       console.error('Error loading 2D scene:', error);
       throw error;
     }
+  }
+
+  /** Replaces the 2D scene with scene data. The scene's audio block is kept so a save writes it back. */
+  static async apply2DScene(sceneData, scene, p5Instance) {
+    if (sceneData.type !== '2d') {
+      throw new Error('Invalid scene type. Expected 2D scene.');
+    }
+    
+    if (scene.sprites) {
+      scene.sprites = [];
+      scene._nextId = 0;
+    }
+    
+    scene.audioConfig = sceneData.audio || null;
+
+    // Load audio configuration if present
+    if (sceneData.audio) {
+      await this.loadAudioForScene(sceneData.audio);
+    }
+    
+    if (sceneData.sprites) {
+      sceneData.sprites.forEach(spriteData => {
+        const sprite = {
+          x: this._evalExpression(spriteData.x, p5Instance),
+          y: this._evalExpression(spriteData.y, p5Instance),
+          width: this._evalExpression(spriteData.width, p5Instance),
+          height: this._evalExpression(spriteData.height, p5Instance),
+          color: spriteData.color || '#00ff00',
+          code: spriteData.code || '',
+          audioEvents: spriteData.audioEvents || [],
+          audioTriggers: spriteData.audioTriggers || {},
+          ...pick(spriteData, OPTIONAL_SPRITE_FIELDS)
+        };
+        
+        const added = scene.addSprite(sprite);
+        // update() is what loads the image, so a saved sprite keeps its picture.
+        if (spriteData.imageUrl && added?.update) added.update({ imageUrl: spriteData.imageUrl });
+      });
+    }
+    
+    console.log(`Loaded 2D scene: ${sceneData.name}`);
+    return sceneData;
   }
   
   static async loadAudioForScene(audioConfig) {
