@@ -96,6 +96,13 @@ describe('AudioEngine effects', () => {
     expect(effects.map(describeNode)).toMatchSnapshot();
   });
 
+  it('keeps an option set to 0 instead of falling back to the default', () => {
+    const delay = engine.createEffect('d', 'delay', { feedback: 0, wet: 0 });
+    expect(delay.args[0]).toMatchObject({ feedback: 0, wet: 0 });
+    const reverb = engine.createEffect('r', 'reverb', { preDelay: 0 });
+    expect(reverb.args[0].preDelay).toBe(0);
+  });
+
   it('returns null for an unknown effect', () => {
     expect(engine.createEffect('x', 'wobble')).toBeNull();
     expect(engine.getAllEffects()).toEqual([]);

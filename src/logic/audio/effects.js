@@ -29,7 +29,7 @@ export function createToneEffect(type, options = {}) {
   const args = {};
   for (const [param, value] of Object.entries(spec.params)) {
     const [option, fallback] = Array.isArray(value) ? value : [param, value];
-    args[param] = options[option] || fallback;
+    args[param] = options[option] ?? fallback;
   }
   const effect = new Tone[spec.node](args);
   if (spec.start) effect.start();
