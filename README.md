@@ -9,6 +9,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
 - **Undo, Duplicate, Copy and Paste** - Ctrl+Z / Ctrl+Y for every edit in 2D and 3D, Ctrl+D to duplicate, Ctrl+C / Ctrl+V to copy and paste
 - **3D Handles** - Click an object in the 3D view and drag it to move (W), rotate (E) or scale (R); View → Snap to Grid snaps to 1 unit and 15°
+- **Save and Load** - Save your scene to a JSON file (Ctrl+S), open it again (Ctrl+O), and restore the autosave after a refresh
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport
