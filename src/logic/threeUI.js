@@ -1,6 +1,9 @@
 import { ThreeScene } from './three/ThreeScene.js';
 import { objectPropertyGroups, lightPropertyGroups } from './three/editor/propertyDefs.js';
 import { renderPropertyGroups, renderDeleteRow } from './three/editor/propertyForm.js';
+import { snapshotOf, canSnapshot, currentValues, copyFor } from './three/editor/snapshots.js';
+import { UndoHistory, mergeUpdates } from './editor/undoHistory.js';
+import { editorClipboard, PASTE_OFFSET_3D } from './editor/clipboard.js';
 
 class ThreeEditorUI {
   constructor(threeScene) {
@@ -20,6 +23,8 @@ class ThreeEditorUI {
       return;
     }
     
+    // Ctrl+Z / Ctrl+Y / Ctrl+D / Ctrl+C / Ctrl+V reach these methods through editor/shortcuts.js in 3D mode.
+    this.history = new UndoHistory();
     console.log('ThreeEditorUI initialized successfully');
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
@@ -99,6 +104,140 @@ class ThreeEditorUI {
     
     this.addItemToExplorer(obj, 'object');
     this.selectItem('object', obj.id);
+    this.recordAdded('object', obj);
+  }
+
+  // --- Undo, redo, duplicate, copy and paste ---------------------------------
+  // Actions: { type: 'add' | 'remove', kind, snapshot, index } and
+  // { type: 'update', kind, id, prev, at }. Undoing an action applies its
+  // inverse, which goes on the other stack, so undo and redo share one code path.
+
+  _list(kind) {
+    return kind === 'light' ? this.threeScene.lights : this.threeScene.objects;
+  }
+
+  _get(kind, id) {
+    return kind === 'light' ? this.threeScene.getLight(id) : this.threeScene.getObject(id);
+  }
+
+  /** Called after an object or light is created, so the creation can be undone. */
+  recordAdded(kind, item) {
+    if (!canSnapshot(kind, item)) return;
+    this.history.record({ type: 'add', kind, snapshot: snapshotOf(kind, item), index: this._list(kind).indexOf(item) });
+  }
+
+  clearHistory() {
+    this.history = new UndoHistory();
+  }
+
+  _remove(kind, id) {
+    const item = this._get(kind, id);
+    if (!item) return null;
+    const removed = { snapshot: canSnapshot(kind, item) ? snapshotOf(kind, item) : null, index: this._list(kind).indexOf(item) };
+    if (kind === 'light') this.threeScene.removeLight(id);
+    else this.threeScene.removeObject(id);
+    return removed;
+  }
+
+  _restore(kind, snapshot, index) {
+    return kind === 'light' ? this.threeScene.addLight(snapshot, index) : this.threeScene.addObject(snapshot, index);
+  }
+
+  _invert(action) {
+    const { type, kind } = action;
+    if (type === 'add') {
+      const removed = this._remove(kind, action.snapshot.id);
+      return removed && { type: 'remove', kind, snapshot: removed.snapshot, index: removed.index };
+    }
+    if (type === 'remove') {
+      this._restore(kind, action.snapshot, action.index);
+      return { ...action, type: 'add' };
+    }
+    const item = this._get(kind, action.id);
+    if (!item) return null;
+    const now = currentValues(item, action.prev);
+    item.update(action.prev);
+    return { type: 'update', kind, id: action.id, prev: now, at: 0 };
+  }
+
+  _step(take, push) {
+    const action = take();
+    if (!action) return;
+    try {
+      const inverse = this._invert(action);
+      if (inverse) push(inverse);
+    } catch (err) {
+      console.error('3D undo/redo failed', err);
+    }
+    this._refreshAfterHistory();
+  }
+
+  undo() {
+    this._step(() => this.history.takeUndo(), (a) => this.history.pushRedo(a));
+  }
+
+  redo() {
+    this._step(() => this.history.takeRedo(), (a) => this.history.pushUndo(a));
+  }
+
+  _refreshAfterHistory() {
+    this._populateExplorer();
+    const sel = this.selectedItem;
+    if (sel && this._get(sel.type, sel.id)) this.selectItem(sel.type, sel.id);
+    else {
+      this.selectedItem = null;
+      this.renderProperties(null);
+    }
+  }
+
+  _updateFromPanel(kind, item, update) {
+    const action = { type: 'update', kind, id: item.id, prev: currentValues(item, update), at: Date.now() };
+    if (kind === 'light') this.threeScene.updateLight(item.id, update);
+    else this.threeScene.updateObject(item.id, update);
+    // A change event that repeats the current value is not an edit.
+    if (JSON.stringify(currentValues(item, update)) === JSON.stringify(action.prev)) return;
+    this.history.record(action, mergeUpdates(action));
+  }
+
+  _deleteSelected(kind, item) {
+    const removed = this._remove(kind, item.id);
+    if (removed?.snapshot) this.history.record({ type: 'remove', kind, ...removed });
+    this._populateExplorer();
+    this.selectedItem = null;
+    this.renderProperties(null);
+  }
+
+  _selected() {
+    const sel = this.selectedItem;
+    const item = sel && this._get(sel.type, sel.id);
+    return item ? { kind: sel.type, item } : null;
+  }
+
+  _addCopy(kind, config) {
+    const item = this._restore(kind, config);
+    this.addItemToExplorer(item, kind);
+    this.selectItem(kind, item.id);
+    this.recordAdded(kind, item);
+    return item;
+  }
+
+  duplicate() {
+    const sel = this._selected();
+    if (!sel || !canSnapshot(sel.kind, sel.item)) return;
+    this._addCopy(sel.kind, copyFor(snapshotOf(sel.kind, sel.item), PASTE_OFFSET_3D));
+  }
+
+  copy() {
+    const sel = this._selected();
+    if (sel && canSnapshot(sel.kind, sel.item)) editorClipboard.copy(sel.kind, snapshotOf(sel.kind, sel.item));
+  }
+
+  paste() {
+    const copied = editorClipboard.paste(['object', 'light']);
+    if (!copied) return;
+    const item = this._addCopy(copied.kind, copyFor(copied.config, PASTE_OFFSET_3D));
+    // The next paste lands a step further along.
+    editorClipboard.copy(copied.kind, { ...snapshotOf(copied.kind, item), name: copied.config.name });
   }
 
   _showModelLoader() {
@@ -232,25 +371,13 @@ class ThreeEditorUI {
 
   _renderObjectProperties(obj) {
     const groups = objectPropertyGroups(obj, { editCode: (item, code, onChange) => this._showCodeEditor(item, code, onChange) });
-    renderPropertyGroups(this.propertiesPanel, groups, obj, (update) => this.threeScene.updateObject(obj.id, update));
-    renderDeleteRow(this.propertiesPanel, () => {
-      this.threeScene.removeObject(obj.id);
-      const el = this.projectExplorer.querySelector(`.tree-item[data-id="${obj.id}"]`);
-      if (el) el.remove();
-      this.selectedItem = null;
-      this.renderProperties(null);
-    });
+    renderPropertyGroups(this.propertiesPanel, groups, obj, (update) => this._updateFromPanel('object', obj, update));
+    renderDeleteRow(this.propertiesPanel, () => this._deleteSelected('object', obj));
   }
 
   _renderLightProperties(light) {
-    renderPropertyGroups(this.propertiesPanel, lightPropertyGroups(light), light, (update) => this.threeScene.updateLight(light.id, update));
-    renderDeleteRow(this.propertiesPanel, () => {
-      this.threeScene.removeLight(light.id);
-      const el = this.projectExplorer.querySelector(`.tree-item[data-id="${light.id}"][data-type="light"]`);
-      if (el) el.remove();
-      this.selectedItem = null;
-      this.renderProperties(null);
-    });
+    renderPropertyGroups(this.propertiesPanel, lightPropertyGroups(light), light, (update) => this._updateFromPanel('light', light, update));
+    renderDeleteRow(this.propertiesPanel, () => this._deleteSelected('light', light));
   }
 }
 

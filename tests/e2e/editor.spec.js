@@ -26,11 +26,15 @@ test('add, edit, undo, redo and delete a sprite', async ({ page }) => {
   await xInput.dispatchEvent('change');
   await expect.poll(async () => (await sprites(page))[0].x).toBe(123);
 
-  // Undo the creation, then redo it.
+  // Undo the X edit, then the creation; redo both.
+  await page.keyboard.press('Control+z');
+  await expect.poll(async () => (await sprites(page))[0].x).not.toBe(123);
   await page.keyboard.press('Control+z');
   await expect(page.locator('#project-explorer .tree-item')).toHaveCount(0);
   await page.keyboard.press('Control+y');
   await expect(page.locator('#project-explorer .tree-item')).toHaveCount(1);
+  await page.keyboard.press('Control+y');
+  await expect.poll(async () => (await sprites(page))[0].x).toBe(123);
 
   // Delete from the properties panel, then undo the delete.
   await page.locator('#project-explorer .tree-item').click();

@@ -150,6 +150,8 @@ class EngineController {
       await SceneLoader.load2DScene(jsonPath, window.scene, window.p5Instance);
       
       if (window.editorUI) {
+        // Sprite ids start again at 0, so the old history would point at the wrong sprites.
+        window.editorUI.clearHistory();
         const explorer = document.getElementById('project-explorer');
         const treeItems = explorer.querySelectorAll('.tree-item');
         treeItems.forEach(item => item.remove());
@@ -189,6 +191,7 @@ class EngineController {
       await SceneLoader.load3DScene(jsonPath, this.threeScene);
       
       if (this.threeUI) {
+        this.threeUI.clearHistory();
         this.threeUI._populateExplorer();
         this.threeUI.renderProperties(null);
       }
@@ -434,6 +437,7 @@ class EngineController {
       if (light && this.threeUI) {
         this.threeUI.addItemToExplorer(light, 'light');
         this.threeUI.selectItem('light', light.id);
+        this.threeUI.recordAdded('light', light);
       }
       
       modal.hide();
