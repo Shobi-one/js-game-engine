@@ -1,0 +1,158 @@
+{
+  "name": "Physics Playground",
+  "type": "3d",
+  "objects": [
+    {
+      "type": "plane",
+      "name": "Floor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": -1.5707963267948966,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 15,
+        "y": 15,
+        "z": 1
+      },
+      "color": "#556b2f",
+      "metalness": 0.1,
+      "roughness": 0.9
+    },
+    {
+      "type": "sphere",
+      "name": "Ball 1",
+      "position": {
+        "x": -4,
+        "y": 4.122171366584257,
+        "z": 0
+      },
+      "color": "hsl(0, 70%, 50%)",
+      "interactive": true,
+      "animation": {
+        "code": "if (!this.velocityY) this.velocityY = 0;\nthis.velocityY -= 0.02;\nthis.mesh.position.y += this.velocityY;\nif (this.mesh.position.y <= 0.5) {\n  this.mesh.position.y = 0.5;\n  this.velocityY = Math.abs(this.velocityY) * 0.8;\n}\nthis.mesh.rotation.x += 0.1;\nthis.mesh.rotation.z += 0.05;"
+      }
+    },
+    {
+      "type": "sphere",
+      "name": "Ball 2",
+      "position": {
+        "x": -2,
+        "y": 5.133900976543478,
+        "z": 0
+      },
+      "color": "hsl(60, 70%, 50%)",
+      "interactive": true,
+      "animation": {
+        "code": "if (!this.velocityY) this.velocityY = 0;\nthis.velocityY -= 0.02;\nthis.mesh.position.y += this.velocityY;\nif (this.mesh.position.y <= 0.5) {\n  this.mesh.position.y = 0.5;\n  this.velocityY = Math.abs(this.velocityY) * 0.8;\n}\nthis.mesh.rotation.x += 0.1;\nthis.mesh.rotation.z += 0.05;"
+      }
+    },
+    {
+      "type": "sphere",
+      "name": "Ball 3",
+      "position": {
+        "x": 0,
+        "y": 5.956948787239845,
+        "z": 0
+      },
+      "color": "hsl(120, 70%, 50%)",
+      "interactive": true,
+      "animation": {
+        "code": "if (!this.velocityY) this.velocityY = 0;\nthis.velocityY -= 0.02;\nthis.mesh.position.y += this.velocityY;\nif (this.mesh.position.y <= 0.5) {\n  this.mesh.position.y = 0.5;\n  this.velocityY = Math.abs(this.velocityY) * 0.8;\n}\nthis.mesh.rotation.x += 0.1;\nthis.mesh.rotation.z += 0.05;"
+      }
+    },
+    {
+      "type": "sphere",
+      "name": "Ball 4",
+      "position": {
+        "x": 2,
+        "y": 4.496604041118525,
+        "z": 0
+      },
+      "color": "hsl(180, 70%, 50%)",
+      "interactive": true,
+      "animation": {
+        "code": "if (!this.velocityY) this.velocityY = 0;\nthis.velocityY -= 0.02;\nthis.mesh.position.y += this.velocityY;\nif (this.mesh.position.y <= 0.5) {\n  this.mesh.position.y = 0.5;\n  this.velocityY = Math.abs(this.velocityY) * 0.8;\n}\nthis.mesh.rotation.x += 0.1;\nthis.mesh.rotation.z += 0.05;"
+      }
+    },
+    {
+      "type": "sphere",
+      "name": "Ball 5",
+      "position": {
+        "x": 4,
+        "y": 4.817183767861371,
+        "z": 0
+      },
+      "color": "hsl(240, 70%, 50%)",
+      "interactive": true,
+      "animation": {
+        "code": "if (!this.velocityY) this.velocityY = 0;\nthis.velocityY -= 0.02;\nthis.mesh.position.y += this.velocityY;\nif (this.mesh.position.y <= 0.5) {\n  this.mesh.position.y = 0.5;\n  this.velocityY = Math.abs(this.velocityY) * 0.8;\n}\nthis.mesh.rotation.x += 0.1;\nthis.mesh.rotation.z += 0.05;"
+      }
+    },
+    {
+      "type": "box",
+      "name": "Interactive Box 1",
+      "position": {
+        "x": -4,
+        "y": 1,
+        "z": -3
+      },
+      "color": "#ff6600",
+      "interactive": true
+    },
+    {
+      "type": "box",
+      "name": "Interactive Box 2",
+      "position": {
+        "x": 4,
+        "y": 1,
+        "z": -3
+      },
+      "color": "#6600ff",
+      "interactive": true
+    },
+    {
+      "type": "cylinder",
+      "name": "Pendulum",
+      "position": {
+        "x": 0,
+        "y": 4,
+        "z": 3
+      },
+      "scale": {
+        "x": 0.1,
+        "y": 2,
+        "z": 0.1
+      },
+      "color": "#888888",
+      "animation": {
+        "code": "if (!this.angle) this.angle = Math.PI / 4;\nif (!this.velocity) this.velocity = 0;\nconst gravity = 0.001;\nconst length = 2;\nthis.velocity += (-gravity / length) * Math.sin(this.angle);\nthis.angle += this.velocity;\nthis.velocity *= 0.99;\nthis.mesh.position.x = Math.sin(this.angle) * length;\nthis.mesh.position.y = 4 - Math.cos(this.angle) * length;\nthis.mesh.rotation.z = this.angle;"
+      }
+    }
+  ],
+  "lights": [
+    {
+      "type": "ambient",
+      "name": "Ambient Light",
+      "color": "#404040",
+      "intensity": 0.5
+    },
+    {
+      "type": "directional",
+      "name": "Sun Light",
+      "color": "#ffffff",
+      "intensity": 1,
+      "position": {
+        "x": 5,
+        "y": 10,
+        "z": 5
+      },
+      "castShadow": true
+    }
+  ]
+}

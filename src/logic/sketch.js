@@ -1,6 +1,7 @@
 import p5 from 'p5';
 import '../style.css';
 import { audioEngine } from './audioEngine.js';
+import { compileBehavior } from './behavior.js';
 
 let p5Instance;
 
@@ -51,22 +52,24 @@ class Sprite {
       }
     }
     
+    // New code gets a fresh chance to report its errors.
+    if ('code' in props) this._lastCodeError = null;
     Object.assign(this, props);
   }
 
   runCode() {
     try {
-      const code = this.code;
-      if (code && code.trim()) {
-        // Behaviors can use the canvas size as `width` and `height`, as the sample scenes do.
-        const fn = new Function('width', 'height', code);
-        fn.call(this, p5Instance?.width, p5Instance?.height);
-      }
+      // Behaviors can use the canvas size as `width` and `height`, as the sample scenes do.
+      const fn = compileBehavior(this.code, ['width', 'height']);
+      if (fn) fn.call(this, p5Instance?.width, p5Instance?.height);
+      this._lastCodeError = null;
       
       // Process audio events
       this.processAudioEvents();
     } catch (err) {
-      console.error(`Error in sprite ${this.id} code:`, err);
+      // A syntax error is the same cached error every frame, so log it once (until the code runs or changes).
+      if (err !== this._lastCodeError) console.error(`Error in sprite ${this.id} code:`, err);
+      this._lastCodeError = err;
     }
   }
   

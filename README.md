@@ -84,6 +84,7 @@ The engine comes with example scenes:
 - **Sample 2D Scene** - Demonstrates sprites with rotation, movement, and physics
 - **Audio Demo Scene** - Shows audio integration
 - **Sample 3D Scene** - Features animated 3D objects with various geometries and lighting
+- **Lighting Demo**, **Animation Showcase** and **Physics Playground** - More 3D examples
 
 ## Project Structure
 
@@ -95,14 +96,17 @@ js-game-engine/
 │   │   ├── ModalComponent.js
 │   │   └── PanelModalComponent.js
 │   ├── logic/              # Core engine logic
-│   │   ├── sketch.js       # p5.js integration
-│   │   ├── threeIntegration.js  # Three.js setup
-│   │   ├── threeScene.js   # 3D scene management
+│   │   ├── sketch.js       # p5.js integration (Sprite, Scene, GameController)
+│   │   ├── behavior.js     # Compiles and caches behavior code
+│   │   ├── threeIntegration.js  # 2D/3D mode switching and the File menu
+│   │   ├── three/          # 3D: ThreeScene, ThreeObject, Light
+│   │   ├── sceneLoader.js  # Scene loading from JSON
+│   │   ├── ui.js           # 2D editor UI
+│   │   ├── editor/         # Undo history and properties panel
+│   │   ├── threeUI.js      # 3D editor UI
+│   │   ├── rss/            # RSS feed reader
 │   │   ├── audioEngine.js  # Audio system
 │   │   ├── audioUI.js      # Audio interface
-│   │   ├── ui.js           # UI management
-│   │   ├── sceneLoader.js  # Scene loading/saving
-│   │   ├── threeUI.js      # 3D UI controls
 │   │   └── workerManager.js # Web worker handling
 │   ├── workers/            # Web worker scripts
 │   │   └── gameWorker.js
@@ -112,7 +116,10 @@ js-game-engine/
 │   ├── 2d-sample.json
 │   ├── 2d-audio-demo.json
 │   ├── 3d-empty.json
-│   └── 3d-example.json
+│   ├── 3d-example.json
+│   ├── 3d-lighting.json
+│   ├── 3d-animation.json
+│   └── 3d-physics.json
 ├── index.html            # Main entry point
 ├── manifest.json         # PWA manifest
 ├── public/service-worker.js  # Service worker for PWA (copied to dist/)
