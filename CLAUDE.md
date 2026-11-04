@@ -9,8 +9,10 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
 - `src/logic/three/`: the 3D side. `ThreeObject.js`, `Light.js` and `ThreeScene.js`, rendered in `#three-container`.
 - `src/logic/threeIntegration.js`: `EngineController` switches 2D/3D mode and wires the File menu to scene loading.
-- `src/logic/sceneLoader.js`: `SceneLoader` turns a JSON file in `scenes/` into sprites or 3D objects. 2D `x/y/width/height` may be strings like `"width/2"`.
-- `src/logic/ui.js` (2D) and `src/logic/threeUI.js` (3D): explorer tree, properties panel, code editor modal.
+- `src/logic/sceneLoader.js`: `SceneLoader` turns a JSON file in `scenes/` into sprites or 3D objects. 2D `x/y/width/height` may be strings like `"width/2"`. Every scene in the File menu is a JSON file; don't build scenes in code.
+- `src/logic/ui.js`: `EditorUI`, the 2D editor coordinator (explorer tree, selection, undo/redo, code editor). It uses `editor/undoHistory.js` (stacks) and `editor/propertiesPanel.js` (form fields and rendering). `threeUI.js` is the 3D equivalent.
+- `src/logic/behavior.js`: `compileBehavior(code, params)` compiles behavior code once and caches it. Always use it instead of `new Function`.
+- `src/logic/rss/`: `feed.js` (fetch, parse, merge) and `rssPanel.js` (Project → RSS modal). Feed content is untrusted: render it with `textContent`, never `innerHTML`.
 - `src/logic/audioEngine.js` wraps Tone.js (mixers, synths, effects). `audioUI.js` is its panel.
 - `src/components/`: vanilla web components (`<menu-item>`, `<modal-window>`, `<panel-modal>`).
 - Behaviors are user code strings. A 2D sprite's `code` runs every frame with `this` = the sprite and `width`/`height` = canvas size. A 3D object's `animation.code` runs with `this.mesh`.
@@ -49,6 +51,5 @@ First Playwright run on a new machine: `npx playwright install chromium`.
 
 ## Known issues
 
-- `service-worker.js` is not copied into `dist/`, so its registration fails on the built site. The e2e helper ignores that one error. Fix it and remove the entry in `tests/e2e/helpers.js`.
-- `SceneLoader.listScenes()` lists 3D scenes (`3d-lighting`, `3d-animation`, `3d-physics`) that do not exist in `scenes/`.
-- `threeScene.js` (about 1,100 lines) and `ui.js` (about 740) are due for a planned split. Behaviors are recompiled with `new Function` every frame.
+- `threeUI.js` (about 580 lines), `audioEngine.js` (about 690) and `audioUI.js` (about 700) are next in line for the same kind of split. See `docs/refactor-plan.md`.
+- `manifest.json` points at `icon-192.png` and `icon-512.png`, which don't exist.

@@ -39,5 +39,17 @@ Directed by Obi and carried out by Claude Code, following the plan → tests →
 ## How we know it worked
 
 - `npm test`, `npm run build` and `npm run test:e2e` green, with the original screenshot baselines untouched
-- No source file over 450 lines
+- No file this refactor touches is over 450 lines
 - The Claude review on the PR finds no behavior changes beyond steps 4 and 6
+
+## Result
+
+| File | Before | After |
+|---|---|---|
+| `threeScene.js` | 1,098 | split into `three/ThreeScene.js` (428), `ThreeObject.js` (192) and `Light.js` (123); dead presets became 3 scene files |
+| `ui.js` | 737 | 317, plus `editor/undoHistory.js`, `editor/propertiesPanel.js`, `rss/feed.js` and `rss/rssPanel.js` |
+| Behavior code | compiled every frame | compiled once per code string (`behavior.js`) |
+| Unit tests | 21 | 45 |
+| Browser tests | 8 | 16 |
+
+The screenshot baselines were not changed.
