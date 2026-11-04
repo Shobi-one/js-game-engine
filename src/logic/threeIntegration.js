@@ -1,6 +1,7 @@
 import { ThreeScene } from './three/ThreeScene.js';
 import { ThreeEditorUI } from './threeUI.js';
 import { SceneLoader } from './sceneLoader.js';
+import { initSceneFiles } from './sceneFilesMenu.js';
 
 class EngineController {
   constructor() {
@@ -46,6 +47,7 @@ class EngineController {
     
     this._initFileMenu();
     this._initEditMenu();
+    initSceneFiles(this);
   }
   
   _initEditMenu() {
@@ -131,7 +133,8 @@ class EngineController {
     }
   }
 
-  async _load2DScene(jsonPath) {
+  // `source` is a path in scenes/ or scene data that is already loaded (a saved file or the autosave).
+  async _load2DScene(source) {
     if (this.mode !== '2d') {
       this.switchTo2D();
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -147,7 +150,10 @@ class EngineController {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      await SceneLoader.load2DScene(jsonPath, window.scene, window.p5Instance);
+      const sceneData = typeof source === 'string'
+        ? await SceneLoader.load2DScene(source, window.scene, window.p5Instance)
+        : await SceneLoader.apply2DScene(source, window.scene, window.p5Instance);
+      this.sceneName = sceneData.name;
       
       if (window.editorUI) {
         const explorer = document.getElementById('project-explorer');
@@ -161,23 +167,22 @@ class EngineController {
         }
       }
       
-      console.log(`Successfully loaded 2D scene from ${jsonPath}`);
+      console.log(`Successfully loaded 2D scene ${sceneData.name}`);
     } catch (error) {
       console.error('Failed to load 2D scene:', error);
       alert(`Failed to load scene: ${error.message}`);
     }
   }
 
-  _loadPresetScene(jsonPath) {
+  async _loadPresetScene(source) {
     if (this.mode !== '3d') {
       this.switchTo3D();
-      setTimeout(() => this._loadPresetSceneActual(jsonPath), 100);
-    } else {
-      this._loadPresetSceneActual(jsonPath);
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
+    return this._loadPresetSceneActual(source);
   }
 
-  async _loadPresetSceneActual(jsonPath) {
+  async _loadPresetSceneActual(source) {
     if (!this.threeScene) {
       console.error('Three.js scene not initialized');
       return;
@@ -186,14 +191,17 @@ class EngineController {
     this.threeScene.stop();
     
     try {
-      await SceneLoader.load3DScene(jsonPath, this.threeScene);
+      const sceneData = typeof source === 'string'
+        ? await SceneLoader.load3DScene(source, this.threeScene)
+        : SceneLoader.apply3DScene(source, this.threeScene);
+      this.sceneName = sceneData.name;
       
       if (this.threeUI) {
         this.threeUI._populateExplorer();
         this.threeUI.renderProperties(null);
       }
       
-      console.log(`Successfully loaded 3D scene from ${jsonPath}`);
+      console.log(`Successfully loaded 3D scene ${sceneData.name}`);
     } catch (error) {
       console.error('Failed to load 3D scene:', error);
       alert(`Failed to load scene: ${error.message}`);
