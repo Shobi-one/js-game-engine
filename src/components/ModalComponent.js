@@ -274,7 +274,8 @@ class ModalComponent extends HTMLElement {
 
     // ESC key to close
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this._isOpen) {
+      // An Escape something inside already used (like closing the code editor's autocomplete) is not for the modal.
+      if (e.key === 'Escape' && this._isOpen && !e.defaultPrevented) {
         this.hide();
       }
     });
