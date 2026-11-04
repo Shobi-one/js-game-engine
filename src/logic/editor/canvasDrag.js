@@ -65,6 +65,7 @@ export function initCanvasDrag({ container, scene, editor, canEdit }) {
   container.addEventListener('pointermove', (e) => {
     const point = toCanvas(e);
     if (!point) return;
+    if (drag && !scene.sprites.includes(drag.sprite)) drag = null; // deleted or undone mid-drag
     if (!drag) {
       const over = canEdit() && spriteAt(scene.sprites, point.x, point.y);
       container.style.cursor = over ? 'move' : '';
@@ -77,18 +78,28 @@ export function initCanvasDrag({ container, scene, editor, canEdit }) {
     if (!drag) return;
     const { sprite, start } = drag;
     drag = null;
+    if (!scene.sprites.includes(sprite)) return;
     if (sprite.x !== start.x || sprite.y !== start.y) editor.recordMove(sprite.id, start);
   };
   container.addEventListener('pointerup', finish);
   container.addEventListener('pointercancel', finish);
 }
 
-/** Draws the snap grid on a p5 instance (only called while snapping is on and the game is stopped). */
+let gridCache = null;
+
+/**
+ * Draws the snap grid on a p5 instance (only called while snapping is on and the game is stopped).
+ * The lines are drawn once into an offscreen layer and redrawn only when the canvas size changes.
+ */
 export function drawGrid(p) {
-  p.push();
-  p.stroke(255, 255, 255, 28);
-  p.strokeWeight(1);
-  for (let x = 0; x <= p.width; x += GRID_SIZE_2D) p.line(x, 0, x, p.height);
-  for (let y = 0; y <= p.height; y += GRID_SIZE_2D) p.line(0, y, p.width, y);
-  p.pop();
+  if (!gridCache || gridCache.p !== p || gridCache.width !== p.width || gridCache.height !== p.height) {
+    gridCache?.layer.remove?.();
+    const layer = p.createGraphics(p.width, p.height);
+    layer.stroke(255, 255, 255, 28);
+    layer.strokeWeight(1);
+    for (let x = 0; x <= p.width; x += GRID_SIZE_2D) layer.line(x, 0, x, p.height);
+    for (let y = 0; y <= p.height; y += GRID_SIZE_2D) layer.line(0, y, p.width, y);
+    gridCache = { p, width: p.width, height: p.height, layer };
+  }
+  p.image(gridCache.layer, 0, 0);
 }

@@ -80,3 +80,28 @@ test('clicking a sprite selects it; sprites do not move while the game runs', as
   await clickMenu(page, 'stop-game');
   expect(errors).toEqual([]);
 });
+
+test('a sprite undone mid-drag is not moved or recorded when the drag ends', async ({ page }) => {
+  const errors = trackErrors(page);
+  const id = await newSpriteScene(page);
+  const start = await spritePos(page, id);
+  const from = await toPage(page, start.x, start.y);
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(from.x + 30, from.y + 30);
+  const held = await spritePos(page, id);
+  // Undo the sprite's creation while it is held.
+  await page.evaluate(() => window.editorUI.undo());
+  await expect.poll(() => page.evaluate(() => window.scene.sprites.length)).toBe(0);
+  await page.mouse.move(from.x + 60, from.y + 60);
+  await page.mouse.up();
+
+  // Redo brings it back as it was when it was removed; the drag left no move on the stack.
+  await page.keyboard.press('Control+y');
+  await expect.poll(() => spritePos(page, id)).toEqual(held);
+  await page.keyboard.press('Control+y');
+  expect(await spritePos(page, id)).toEqual(held);
+  await page.keyboard.press('Control+z');
+  await expect.poll(() => page.evaluate(() => window.scene.sprites.length)).toBe(0);
+  expect(errors).toEqual([]);
+});

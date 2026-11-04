@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { spriteContains, spriteAt, dragPosition, snapTo, GRID_SIZE_2D } from '../../src/logic/editor/canvasDrag.js';
+import { describe, it, expect, vi } from 'vitest';
+import { spriteContains, spriteAt, dragPosition, snapTo, GRID_SIZE_2D, drawGrid } from '../../src/logic/editor/canvasDrag.js';
 
 describe('2D canvas dragging', () => {
   const box = { x: 100, y: 100, width: 40, height: 20, rotation: 0 };
@@ -29,5 +29,29 @@ describe('2D canvas dragging', () => {
     expect(dragPosition({ x: 57, y: 33 }, { x: 5, y: -3 }, true)).toEqual({ x: 60, y: 40 });
     expect(snapTo(29, GRID_SIZE_2D)).toBe(20);
     expect(snapTo(30, GRID_SIZE_2D)).toBe(40);
+  });
+});
+
+describe('snap grid drawing', () => {
+  const fakeP5 = (width, height) => {
+    const layer = () => ({ stroke: vi.fn(), strokeWeight: vi.fn(), line: vi.fn(), remove: vi.fn() });
+    return { width, height, createGraphics: vi.fn(layer), image: vi.fn() };
+  };
+
+  it('draws the lines once and reuses them until the canvas is resized', () => {
+    const p = fakeP5(100, 60);
+    drawGrid(p);
+    drawGrid(p);
+    drawGrid(p);
+    expect(p.createGraphics).toHaveBeenCalledTimes(1);
+    expect(p.image).toHaveBeenCalledTimes(3);
+    const first = p.createGraphics.mock.results[0].value;
+    expect(first.line).toHaveBeenCalledTimes(100 / GRID_SIZE_2D + 1 + 60 / GRID_SIZE_2D + 1);
+
+    p.width = 200;
+    drawGrid(p);
+    expect(p.createGraphics).toHaveBeenCalledTimes(2);
+    expect(p.createGraphics).toHaveBeenLastCalledWith(200, 60);
+    expect(first.remove).toHaveBeenCalled();
   });
 });
