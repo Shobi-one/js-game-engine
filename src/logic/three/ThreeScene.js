@@ -381,10 +381,12 @@ class ThreeScene {
 
   start() {
     this.isRunning = true;
+    this.onRunChange?.(true);
   }
 
   stop() {
     this.isRunning = false;
+    this.onRunChange?.(false);
   }
 
   _animate() {
