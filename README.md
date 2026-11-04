@@ -99,7 +99,7 @@ js-game-engine/
 │   │   ├── sketch.js       # p5.js integration (Sprite, Scene, GameController)
 │   │   ├── behavior.js     # Compiles and caches behavior code
 │   │   ├── threeIntegration.js  # 2D/3D mode switching and the File menu
-│   │   ├── three/          # 3D: ThreeScene, ThreeObject, Light
+│   │   ├── three/          # 3D: ThreeScene, ThreeObject, Light, editor/ property forms
 │   │   ├── sceneLoader.js  # Scene loading from JSON
 │   │   ├── ui.js           # 2D editor UI
 │   │   ├── editor/         # Undo history and properties panel
@@ -107,6 +107,7 @@ js-game-engine/
 │   │   ├── rss/            # RSS feed reader
 │   │   ├── audioEngine.js  # Audio system
 │   │   ├── audioUI.js      # Audio interface
+│   │   ├── audio/          # Effect and instrument tables, audio panel pieces
 │   │   └── workerManager.js # Web worker handling
 │   ├── workers/            # Web worker scripts
 │   │   └── gameWorker.js

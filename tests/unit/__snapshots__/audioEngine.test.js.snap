@@ -1,0 +1,411 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AudioEngine effects > builds every effect type with custom options 1`] = `
+[
+  {
+    "args": [
+      {
+        "decay": 3,
+        "preDelay": 0.2,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Reverb",
+  },
+  {
+    "args": [
+      {
+        "delayTime": 0.5,
+        "feedback": 0.7,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "FeedbackDelay",
+  },
+  {
+    "args": [
+      {
+        "distortion": 0.9,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Distortion",
+  },
+  {
+    "args": [
+      {
+        "delayTime": 0.5,
+        "depth": 0.2,
+        "frequency": 4,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Chorus",
+  },
+  {
+    "args": [
+      {
+        "baseFrequency": 500,
+        "frequency": 4,
+        "octaves": 5,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Phaser",
+  },
+  {
+    "args": [
+      {
+        "depth": 0.2,
+        "frequency": 4,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Tremolo",
+  },
+  {
+    "args": [
+      {
+        "depth": 0.2,
+        "frequency": 4,
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Vibrato",
+  },
+  {
+    "args": [
+      {
+        "Q": 3,
+        "frequency": 4,
+        "rolloff": -24,
+        "type": "highpass",
+        "wet": 0.3,
+      },
+    ],
+    "kind": "Filter",
+  },
+  {
+    "args": [
+      {
+        "baseFrequency": 500,
+        "depth": 0.2,
+        "frequency": 4,
+        "octaves": 5,
+        "type": "highpass",
+        "wet": 0.3,
+      },
+    ],
+    "kind": "AutoFilter",
+  },
+]
+`;
+
+exports[`AudioEngine effects > builds every effect type with its defaults 1`] = `
+[
+  {
+    "args": [
+      {
+        "decay": 1.5,
+        "preDelay": 0.01,
+        "wet": 0.5,
+      },
+    ],
+    "calls": [],
+    "kind": "Reverb",
+  },
+  {
+    "args": [
+      {
+        "delayTime": 0.25,
+        "feedback": 0.5,
+        "wet": 0.5,
+      },
+    ],
+    "calls": [],
+    "kind": "FeedbackDelay",
+  },
+  {
+    "args": [
+      {
+        "distortion": 0.4,
+        "wet": 1,
+      },
+    ],
+    "calls": [],
+    "kind": "Distortion",
+  },
+  {
+    "args": [
+      {
+        "delayTime": 3.5,
+        "depth": 0.7,
+        "frequency": 1.5,
+        "wet": 0.5,
+      },
+    ],
+    "calls": [
+      [
+        "start",
+      ],
+    ],
+    "kind": "Chorus",
+  },
+  {
+    "args": [
+      {
+        "baseFrequency": 350,
+        "frequency": 0.5,
+        "octaves": 3,
+        "wet": 0.5,
+      },
+    ],
+    "calls": [],
+    "kind": "Phaser",
+  },
+  {
+    "args": [
+      {
+        "depth": 0.5,
+        "frequency": 10,
+        "wet": 1,
+      },
+    ],
+    "calls": [
+      [
+        "start",
+      ],
+    ],
+    "kind": "Tremolo",
+  },
+  {
+    "args": [
+      {
+        "depth": 0.1,
+        "frequency": 5,
+        "wet": 1,
+      },
+    ],
+    "calls": [],
+    "kind": "Vibrato",
+  },
+  {
+    "args": [
+      {
+        "Q": 1,
+        "frequency": 1000,
+        "rolloff": -12,
+        "type": "lowpass",
+        "wet": 1,
+      },
+    ],
+    "calls": [],
+    "kind": "Filter",
+  },
+  {
+    "args": [
+      {
+        "baseFrequency": 200,
+        "depth": 1,
+        "frequency": 1,
+        "octaves": 2.6,
+        "type": "sine",
+        "wet": 1,
+      },
+    ],
+    "calls": [
+      [
+        "start",
+      ],
+    ],
+    "kind": "AutoFilter",
+  },
+]
+`;
+
+exports[`AudioEngine instruments > builds each instrument with its defaults and routes it to its channel 1`] = `
+[
+  {
+    "args": [
+      {
+        "envelope": {
+          "attack": 0.005,
+          "decay": 0.1,
+          "release": 1,
+          "sustain": 0.3,
+        },
+        "oscillator": {
+          "type": "triangle",
+        },
+      },
+    ],
+    "kind": "Synth",
+  },
+  {
+    "args": [
+      null,
+      {
+        "envelope": {
+          "attack": 0.005,
+          "decay": 0.1,
+          "release": 1,
+          "sustain": 0.3,
+        },
+        "maxPolyphony": 8,
+        "oscillator": {
+          "type": "triangle",
+        },
+      },
+    ],
+    "kind": "PolySynth",
+  },
+  {
+    "args": [
+      {
+        "envelope": {
+          "attack": 0.005,
+          "decay": 0.1,
+          "release": 1,
+          "sustain": 0.3,
+        },
+        "noise": {
+          "type": "pink",
+        },
+      },
+    ],
+    "kind": "NoiseSynth",
+  },
+  {
+    "args": [
+      {
+        "envelope": {
+          "attack": 0.001,
+          "decay": 1.4,
+          "release": 0.2,
+        },
+        "frequency": 300,
+        "harmonicity": 5.1,
+        "modulationIndex": 32,
+        "octaves": 1.5,
+        "resonance": 4000,
+      },
+    ],
+    "kind": "MetalSynth",
+  },
+  {
+    "args": [
+      {
+        "loop": true,
+        "playbackRate": 1,
+        "url": "blob:x",
+      },
+    ],
+    "kind": "Player",
+  },
+]
+`;
+
+exports[`AudioEngine instruments > builds each instrument with its defaults and routes it to its channel 2`] = `
+[
+  [
+    [
+      "connect",
+      "Channel",
+    ],
+  ],
+  [
+    [
+      "connect",
+      "Channel",
+    ],
+  ],
+  [
+    [
+      "connect",
+      "Channel",
+    ],
+  ],
+  [
+    [
+      "connect",
+      "Channel",
+    ],
+  ],
+  [
+    [
+      "connect",
+      "Channel",
+    ],
+  ],
+]
+`;
+
+exports[`AudioEngine instruments > builds each instrument with its defaults and routes it to its channel 3`] = `
+[
+  {
+    "channel": "sfx",
+    "options": {
+      "envelope": {
+        "attack": 0.005,
+        "decay": 0.1,
+        "release": 1,
+        "sustain": 0.3,
+      },
+      "type": "triangle",
+    },
+    "type": "synth",
+  },
+  {
+    "channel": "music",
+    "options": {
+      "envelope": {
+        "attack": 0.005,
+        "decay": 0.1,
+        "release": 1,
+        "sustain": 0.3,
+      },
+      "polyphony": 8,
+      "type": "triangle",
+    },
+    "type": "polysynth",
+  },
+  {
+    "channel": "ambient",
+    "options": {
+      "envelope": {
+        "attack": 0.005,
+        "decay": 0.1,
+        "release": 1,
+        "sustain": 0.3,
+      },
+      "type": "pink",
+    },
+    "type": "noise",
+  },
+  {
+    "channel": "sfx",
+    "options": {
+      "envelope": {
+        "attack": 0.001,
+        "decay": 1.4,
+        "release": 0.2,
+      },
+      "frequency": 300,
+      "harmonicity": 5.1,
+      "modulationIndex": 32,
+      "octaves": 1.5,
+      "resonance": 4000,
+    },
+    "type": "metal",
+  },
+  {
+    "channel": "sfx",
+    "options": {
+      "loop": true,
+      "playbackRate": 1,
+      "url": "blob:x",
+    },
+    "type": "sample",
+  },
+]
+`;
