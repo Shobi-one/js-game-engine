@@ -8,6 +8,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
 - **Undo, Duplicate, Copy and Paste** - Ctrl+Z / Ctrl+Y for every edit in 2D and 3D, Ctrl+D to duplicate, Ctrl+C / Ctrl+V to copy and paste
+- **3D Handles** - Click an object in the 3D view and drag it to move (W), rotate (E) or scale (R); View → Snap to Grid snaps to 1 unit and 15°
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport

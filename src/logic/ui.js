@@ -1,6 +1,7 @@
 import { scene } from './sketch.js';
 import { UndoHistory, mergeUpdates } from './editor/undoHistory.js';
 import { initEditorShortcuts } from './editor/shortcuts.js';
+import { initSnapMenu } from './editor/snapSettings.js';
 import { editorClipboard, spriteConfig, PASTE_OFFSET_2D } from './editor/clipboard.js';
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
@@ -350,5 +351,6 @@ class EditorUI {
 const ui = new EditorUI(scene);
 window.editorUI = ui;
 initEditorShortcuts();
+initSnapMenu();
 
 export { EditorUI };
