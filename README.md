@@ -9,6 +9,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
 - **Reset Scene and FPS** - Run → Reset Scene puts everything back the way it was before Run; View → Show FPS shows the frame rate
 - **Installable** - App icons and a manifest, so the editor can be installed as an app
+- **Save and Load** - Save your scene to a JSON file (Ctrl+S), open it again (Ctrl+O), and restore the autosave after a refresh
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport
