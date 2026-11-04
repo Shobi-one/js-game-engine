@@ -70,3 +70,17 @@ test('a syntax error in behavior code is logged once, not every frame', async ({
   await clickMenu(page, 'stop-game');
   expect(errors.filter((e) => e.includes('Error in sprite'))).toHaveLength(1);
 });
+
+test('the same syntax error is reported again after the code was fixed', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'scene-2d-new');
+  await addSprite(page);
+  await clickMenu(page, 'run-game');
+  for (const code of ['this.x +* 1', 'this.x += 1;', 'this.x +* 1']) {
+    await page.evaluate((c) => window.scene.updateSprite(window.scene.sprites[0].id, { code: c }), code);
+    await page.waitForTimeout(200);
+  }
+  await clickMenu(page, 'stop-game');
+  expect(errors.filter((e) => e.includes('Error in sprite'))).toHaveLength(2);
+});

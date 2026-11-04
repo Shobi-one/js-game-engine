@@ -136,6 +136,8 @@ class ThreeObject {
   }
 
   update(props) {
+    // New code gets a fresh chance to report its errors.
+    if ('code' in props) this._lastCodeError = null;
     Object.assign(this, props);
     
     if (this.mesh) {
@@ -174,8 +176,9 @@ class ThreeObject {
     try {
       const fn = compileBehavior(this.code, ['THREE']);
       if (fn) fn.call(this, THREE);
+      this._lastCodeError = null;
     } catch (err) {
-      // A syntax error is the same cached error every frame, so log it once.
+      // A syntax error is the same cached error every frame, so log it once (until the code runs or changes).
       if (err !== this._lastCodeError) console.error(`Error in object ${this.id} code:`, err);
       this._lastCodeError = err;
     }

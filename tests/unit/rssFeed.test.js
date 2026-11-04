@@ -54,3 +54,16 @@ describe('toPlainText', () => {
     expect(toPlainText('<b>hi</b> there')).toBe('hi there');
   });
 });
+
+describe('mergeFeedItems across polls', () => {
+  it('returns the stored entries, so clearing _isNew on a rendered item sticks', () => {
+    const seen = new Map();
+    const [first] = mergeFeedItems(seen, [{ guid: 'a', title: 'A' }]);
+    expect(first._isNew).toBe(true);
+    first._isNew = false; // what RssPanel's highlight timer does
+    // Next poll: the item dropped out of the feed (or the fetch failed).
+    const [again] = mergeFeedItems(seen, []);
+    expect(again).toBe(first);
+    expect(again._isNew).toBe(false);
+  });
+});
