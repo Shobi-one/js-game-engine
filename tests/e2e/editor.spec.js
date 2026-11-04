@@ -58,3 +58,15 @@ test('behavior code edited in the code editor runs', async ({ page }) => {
   await clickMenu(page, 'stop-game');
   expect(errors).toEqual([]);
 });
+
+test('a syntax error in behavior code is logged once, not every frame', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'scene-2d-new');
+  await addSprite(page);
+  await page.evaluate(() => { window.scene.sprites[0].code = 'this.x +* 1'; });
+  await clickMenu(page, 'run-game');
+  await page.waitForTimeout(500); // about 30 frames
+  await clickMenu(page, 'stop-game');
+  expect(errors.filter((e) => e.includes('Error in sprite'))).toHaveLength(1);
+});

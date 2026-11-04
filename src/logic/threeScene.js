@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { compileBehavior } from './behavior.js';
 
 class ThreeObject {
   constructor(id, options = {}) {
@@ -173,10 +174,12 @@ class ThreeObject {
     if (!isRunning || !this.code || !this.mesh) return;
     
     try {
-      const fn = new Function('THREE', this.code).bind(this);
-      fn(THREE);
+      const fn = compileBehavior(this.code, ['THREE']);
+      if (fn) fn.call(this, THREE);
     } catch (err) {
-      console.error(`Error in object ${this.id} code:`, err);
+      // A syntax error is the same cached error every frame, so log it once.
+      if (err !== this._lastCodeError) console.error(`Error in object ${this.id} code:`, err);
+      this._lastCodeError = err;
     }
   }
 
