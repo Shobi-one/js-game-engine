@@ -17,7 +17,7 @@ const rel = relative(root, resolve(root, file)).split('\\').join('/');
 const allowed = [
   /^src\//, /^tests\//, /^scenes\//, /^docs\//, /^\.claude\//,
   /^index\.html$/, /^README\.md$/, /^CLAUDE\.md$/, /^CODE_EXAMPLES\.js$/,
-  /^manifest\.json$/, /^service-worker\.js$/, /^public\//, /^package\.json$/,
+  /^manifest\.json$/, /^public\//, /^package\.json$/,
   /^vitest\.config\.js$/, /^playwright\.config\.js$/,
 ];
 const blocked = [/^tests\/e2e\/.*-snapshots\//, /^package-lock\.json$/, /^dist\//, /^node_modules\//];

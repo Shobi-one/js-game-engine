@@ -5,6 +5,7 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 
 ## Architecture in ten lines
 
+- `public/service-worker.js` is copied as-is to `dist/` (network first, cache as offline fallback). Bump `CACHE_NAME` when you change it.
 - `index.html` is the whole editor UI: menus, panels and modals. It loads every module in `src/` with `<script type="module">`.
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
 - `src/logic/three/`: the 3D side. `ThreeObject.js`, `Light.js` and `ThreeScene.js`, rendered in `#three-container`.
