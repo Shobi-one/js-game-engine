@@ -27,6 +27,10 @@ class MenuItemComponent extends HTMLElement {
             :host {
                 display: block;
             }
+
+            :host([hidden]) {
+                display: none;
+            }
             
             .menu-item {
                 padding: var(--space-xs, 0.25rem) var(--space-sm, 0.5rem);
