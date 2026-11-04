@@ -8,6 +8,8 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
 - **Undo, Duplicate, Copy and Paste** - Ctrl+Z / Ctrl+Y for every edit in 2D and 3D, Ctrl+D to duplicate, Ctrl+C / Ctrl+V to copy and paste
+- **3D Handles** - Click an object in the 3D view and drag it to move (W), rotate (E) or scale (R); View → Snap to Grid snaps to 1 unit and 15°
+- **2D Dragging** - Click and drag sprites on the canvas; with Snap to Grid on they snap to a 20 px grid
 - **Reset Scene and FPS** - Run → Reset Scene puts everything back the way it was before Run; View → Show FPS shows the frame rate
 - **Installable** - App icons and a manifest, so the editor can be installed as an app
 - **Save and Load** - Save your scene to a JSON file (Ctrl+S), open it again (Ctrl+O), and restore the autosave after a refresh

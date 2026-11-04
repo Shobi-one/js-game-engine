@@ -2,6 +2,8 @@ import p5 from 'p5';
 import '../style.css';
 import { audioEngine } from './audioEngine.js';
 import { compileBehavior } from './behavior.js';
+import { snapSettings } from './editor/snapSettings.js';
+import { drawGrid } from './editor/canvasDrag.js';
 
 let p5Instance;
 
@@ -318,6 +320,8 @@ const sketch = (p) => {
           scene.drawAll(true);
         } else {
           scene.drawAll(false);
+          // Drawn over the sprites, faintly: a full-canvas background sprite would hide it otherwise.
+          if (snapSettings.enabled) drawGrid(p);
         }
       }
   };
