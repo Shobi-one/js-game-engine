@@ -7,7 +7,7 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 
 - `index.html` is the whole editor UI: menus, panels and modals. It loads every module in `src/` with `<script type="module">`.
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
-- `src/logic/threeScene.js`: the 3D side. `ThreeObject`, `Light` and `ThreeScene`, rendered in `#three-container`.
+- `src/logic/three/`: the 3D side. `ThreeObject.js`, `Light.js` and `ThreeScene.js`, rendered in `#three-container`.
 - `src/logic/threeIntegration.js`: `EngineController` switches 2D/3D mode and wires the File menu to scene loading.
 - `src/logic/sceneLoader.js`: `SceneLoader` turns a JSON file in `scenes/` into sprites or 3D objects. 2D `x/y/width/height` may be strings like `"width/2"`.
 - `src/logic/ui.js` (2D) and `src/logic/threeUI.js` (3D): explorer tree, properties panel, code editor modal.

@@ -1,4 +1,4 @@
-import { ThreeScene } from './threeScene.js';
+import { ThreeScene } from './three/ThreeScene.js';
 import { ThreeEditorUI } from './threeUI.js';
 import { SceneLoader } from './sceneLoader.js';
 
