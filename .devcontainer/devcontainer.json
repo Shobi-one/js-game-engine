@@ -1,0 +1,13 @@
+{
+  "name": "ClipEngine (agent sandbox)",
+  "image": "mcr.microsoft.com/playwright:v1.63.0-noble",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  "runArgs": ["--cpus=4", "--memory=8g"],
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [5173],
+  "containerEnv": { "CLAUDE_CONFIG_DIR": "/home/pwuser/.claude" },
+  "remoteUser": "pwuser",
+  "mounts": ["source=clipengine-claude-config,target=/home/pwuser/.claude,type=volume"]
+}
