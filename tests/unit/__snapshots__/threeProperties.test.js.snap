@@ -1,0 +1,120 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`3D property definitions > adds the groups each light type needs 1`] = `
+{
+  "ambient": {
+    "general": [
+      "name",
+      "color",
+      "intensity",
+    ],
+    "position": [
+      "position.x",
+      "position.y",
+      "position.z",
+    ],
+  },
+  "directional": {
+    "general": [
+      "name",
+      "color",
+      "intensity",
+    ],
+    "position": [
+      "position.x",
+      "position.y",
+      "position.z",
+    ],
+    "shadow": [
+      "castShadow",
+    ],
+  },
+  "hemisphere": {
+    "general": [
+      "name",
+      "color",
+      "intensity",
+    ],
+    "hemisphere": [
+      "groundColor",
+    ],
+    "position": [
+      "position.x",
+      "position.y",
+      "position.z",
+    ],
+  },
+  "point": {
+    "general": [
+      "name",
+      "color",
+      "intensity",
+    ],
+    "pointlight": [
+      "distance",
+      "decay",
+    ],
+    "position": [
+      "position.x",
+      "position.y",
+      "position.z",
+    ],
+    "shadow": [
+      "castShadow",
+    ],
+  },
+  "spot": {
+    "general": [
+      "name",
+      "color",
+      "intensity",
+    ],
+    "position": [
+      "position.x",
+      "position.y",
+      "position.z",
+    ],
+    "shadow": [
+      "castShadow",
+    ],
+    "spotlight": [
+      "angle",
+      "penumbra",
+      "decay",
+      "distance",
+      "target.x",
+      "target.y",
+      "target.z",
+    ],
+  },
+}
+`;
+
+exports[`3D property definitions > lists the mesh groups and their properties in order 1`] = `
+{
+  "behavior": [
+    "interactive",
+    "code",
+  ],
+  "material": [
+    "color",
+    "metalness",
+    "roughness",
+    "opacity",
+    "transparent",
+    "wireframe",
+    "textureUrl",
+  ],
+  "transform": [
+    "position.x",
+    "position.y",
+    "position.z",
+    "rotation.x",
+    "rotation.y",
+    "rotation.z",
+    "scale.x",
+    "scale.y",
+    "scale.z",
+  ],
+}
+`;
