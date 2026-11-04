@@ -79,9 +79,14 @@ export function initSceneFiles(engine) {
     restoreItem.hidden = false;
     restoreItem.addEventListener('click', async () => {
       closeFileMenu();
-      restoreItem.hidden = true;
-      protectPrevious = false;
-      await openScene(engine, previous.scene);
+      try {
+        await openScene(engine, previous.scene);
+        restoreItem.hidden = true;
+        protectPrevious = false;
+      } catch (error) {
+        console.warn('Could not restore the autosave:', error);
+        alert(`Could not restore the autosave: ${error.message}`);
+      }
     });
   }
 
