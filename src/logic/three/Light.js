@@ -8,15 +8,15 @@ class Light {
     this.type = options.type || 'point';
     this.name = options.name || `Light ${id}`;
     this.color = options.color || '#ffffff';
-    this.intensity = options.intensity || 1.0;
+    this.intensity = options.intensity ?? 1.0;
     this.position = options.position || { x: 0, y: 5, z: 0 };
     this.target = options.target || { x: 0, y: 0, z: 0 };
     this.castShadow = options.castShadow || false;
     
-    this.angle = options.angle || Math.PI / 4;
-    this.penumbra = options.penumbra || 0.1;
-    this.decay = options.decay || 2;
-    this.distance = options.distance || 0;
+    this.angle = options.angle ?? Math.PI / 4;
+    this.penumbra = options.penumbra ?? 0.1;
+    this.decay = options.decay ?? 2;
+    this.distance = options.distance ?? 0;
     
     this.groundColor = options.groundColor || '#444444';
     

@@ -14,9 +14,9 @@ class ThreeObject {
     this.color = options.color || '#00ff00';
     this.wireframe = options.wireframe || false;
     this.transparent = options.transparent || false;
-    this.opacity = options.opacity || 1.0;
-    this.metalness = options.metalness || 0.5;
-    this.roughness = options.roughness || 0.5;
+    this.opacity = options.opacity ?? 1.0;
+    this.metalness = options.metalness ?? 0.5;
+    this.roughness = options.roughness ?? 0.5;
     this.modelPath = options.modelPath || null;
     this.textureUrl = options.textureUrl || null;
     
