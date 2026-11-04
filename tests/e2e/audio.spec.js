@@ -58,3 +58,16 @@ test('audio panel: start audio, make a sound, add an effect, mix and adjust chan
   await expect(panel).toBeHidden();
   expect(errors).toEqual([]);
 });
+
+test('audio panel shows a sound named with HTML as text', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'open-audio-engine');
+  await page.locator('#audio-init-btn').click();
+  await page.locator('#sound-name').fill('<img src=x onerror="window.__pwned=1">');
+  await page.locator('#generate-sound-btn').click();
+  await expect(page.locator('#sounds-list .audio-list-item')).toHaveCount(1);
+  await expect(page.locator('#sounds-list img')).toHaveCount(0);
+  expect(await page.evaluate(() => window.__pwned)).toBeUndefined();
+  expect(errors).toEqual([]);
+});
