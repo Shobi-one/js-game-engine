@@ -58,8 +58,9 @@ class Sprite {
     try {
       const code = this.code;
       if (code && code.trim()) {
-        const fn = new Function(code).bind(this);
-        fn();
+        // Behaviors can use the canvas size as `width` and `height`, as the sample scenes do.
+        const fn = new Function('width', 'height', code);
+        fn.call(this, p5Instance?.width, p5Instance?.height);
       }
       
       // Process audio events

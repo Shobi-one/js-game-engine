@@ -50,6 +50,15 @@ npm run dev
 
 4. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
 
+## Development with coding agents
+
+ClipEngine is developed with Claude Code as a pair programmer, gated by tests. `CLAUDE.md` is the brief every agent session reads, `.claude/` holds the project's slash commands, scoped subagents and guardrail hooks, and every PR runs unit, browser and screenshot tests plus a Claude review in GitHub Actions. See [docs/agents.md](docs/agents.md) for how it works.
+
+```bash
+npm test            # unit tests (Vitest)
+npm run test:e2e    # browser and visual tests (Playwright)
+```
+
 ## Getting Started
 
 ### Creating a 2D Scene

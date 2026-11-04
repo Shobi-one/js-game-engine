@@ -208,8 +208,9 @@ export class SceneLoader {
     
     if (typeof value === 'string') {
       try {
-        let width = p5Instance.width;
-        let height = p5Instance.height;
+        // p5Instance can be undefined before the first sprite has been drawn.
+        let width = p5Instance?.width;
+        let height = p5Instance?.height;
         
         if (!width || width <= 100 || !height || height <= 100) {
           const canvasContainer = document.getElementById('canvas-container');
