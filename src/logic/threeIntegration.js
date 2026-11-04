@@ -6,6 +6,8 @@ import { initSceneFiles } from './sceneFilesMenu.js';
 class EngineController {
   constructor() {
     this.mode = '2d';
+    // The name of the scene open in each mode, used for saved file names and the autosave.
+    this.sceneNames = { '2d': null, '3d': null };
     this.threeScene = null;
     this.threeUI = null;
     
@@ -153,7 +155,7 @@ class EngineController {
       const sceneData = typeof source === 'string'
         ? await SceneLoader.load2DScene(source, window.scene, window.p5Instance)
         : await SceneLoader.apply2DScene(source, window.scene, window.p5Instance);
-      this.sceneName = sceneData.name;
+      this.sceneNames['2d'] = sceneData.name;
       
       if (window.editorUI) {
         const explorer = document.getElementById('project-explorer');
@@ -194,7 +196,7 @@ class EngineController {
       const sceneData = typeof source === 'string'
         ? await SceneLoader.load3DScene(source, this.threeScene)
         : SceneLoader.apply3DScene(source, this.threeScene);
-      this.sceneName = sceneData.name;
+      this.sceneNames['3d'] = sceneData.name;
       
       if (this.threeUI) {
         this.threeUI._populateExplorer();

@@ -74,6 +74,24 @@ test('the autosave survives a reload and can be restored from the File menu', as
   expect(errors).toEqual([]);
 });
 
+test('a save after switching modes uses the open scene\'s own name', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'scene-2d-sample');
+  await expect.poll(() => page.evaluate(() => window.scene.sprites.length)).toBeGreaterThan(0);
+  await clickMenu(page, 'view-3d');
+  await expect(page.locator('#three-container canvas')).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await page.keyboard.press('Control+s');
+  expect((await downloadPromise).suggestedFilename()).toBe('untitled-3d-scene.json');
+
+  await clickMenu(page, 'view-2d');
+  const again = page.waitForEvent('download');
+  await page.keyboard.press('Control+s');
+  expect((await again).suggestedFilename()).toBe('sample-2d-scene.json');
+  expect(errors).toEqual([]);
+});
+
 test('opening a file that is not a scene says so', async ({ page }) => {
   await openEditor(page);
   const dialogPromise = page.waitForEvent('dialog');

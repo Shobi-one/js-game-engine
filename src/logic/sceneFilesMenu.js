@@ -6,11 +6,11 @@ const AUTOSAVE_INTERVAL_MS = 3000;
 /** The scene that is open now, as scene JSON. */
 function currentScene(engine) {
   if (engine.mode === '3d' && engine.threeScene) {
-    const { data, skipped } = serialize3DScene(engine.threeScene, { name: engine.sceneName || 'Untitled 3D Scene' });
+    const { data, skipped } = serialize3DScene(engine.threeScene, { name: engine.sceneNames?.['3d'] || 'Untitled 3D Scene' });
     return { data, skipped };
   }
   const scene = window.scene;
-  const data = serialize2DScene(scene, { name: engine.sceneName || 'Untitled 2D Scene', audio: scene.audioConfig });
+  const data = serialize2DScene(scene, { name: engine.sceneNames?.['2d'] || 'Untitled 2D Scene', audio: scene.audioConfig });
   return { data, skipped: 0 };
 }
 
@@ -87,17 +87,32 @@ export function initSceneFiles(engine) {
 
   let lastSaved = null;
   let startScene = null;
+  let warnedFull = false;
+  const sceneJSON = () => {
+    try {
+      return JSON.stringify(currentScene(engine).data);
+    } catch {
+      // A half-built scene during a mode switch; the next tick catches up.
+      return null;
+    }
+  };
+  // The startup scene, taken as soon as the editor is built (before the user can change
+  // anything), so the previous autosave is only replaced once the scene really changes.
+  // The restore item keeps the previous autosave in memory for the rest of the visit.
+  setTimeout(() => { startScene = sceneJSON(); }, 0);
+
   const autosave = () => {
     if (isRunning(engine)) return;
-    try {
-      const { data } = currentScene(engine);
-      const json = JSON.stringify(data);
-      startScene ??= json;
-      if (protectPrevious && json === startScene) return;
-      protectPrevious = false;
-      if (json !== lastSaved && writeAutosave(data)) lastSaved = json;
-    } catch (error) {
-      // A half-built scene during a mode switch is not worth reporting; the next tick catches up.
+    const json = sceneJSON();
+    if (json === null) return;
+    if (protectPrevious && (startScene === null || json === startScene)) return;
+    protectPrevious = false;
+    if (json === lastSaved) return;
+    if (writeAutosave(JSON.parse(json))) {
+      lastSaved = json;
+    } else if (!warnedFull) {
+      warnedFull = true;
+      console.warn('Autosave failed: browser storage is full or blocked (large images in a scene can fill it). Use File → Save Scene.');
     }
   };
   setInterval(autosave, AUTOSAVE_INTERVAL_MS);
