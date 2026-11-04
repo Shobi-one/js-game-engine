@@ -1,4 +1,6 @@
 import * as Tone from 'tone';
+import { createToneEffect, updateToneEffect } from './audio/effects.js';
+import { createInstrument, triggerSound, updateInstrument } from './audio/instruments.js';
 
 /**
  * AudioEngine - Complete Tone.js integration for game engine
@@ -73,145 +75,49 @@ class AudioEngine {
   }
   
   /**
-   * Generate a synthesizer sound
-   * Types: 'sine', 'square', 'triangle', 'sawtooth'
+   * Generate a synthesizer sound. Oscillator types: 'sine', 'square', 'triangle', 'sawtooth'
    */
   generateSynth(name, options = {}) {
-    const {
-      type = 'triangle',
-      envelope = { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 },
-      channel = 'sfx'
-    } = options;
-    
-    const synth = new Tone.Synth({
-      oscillator: { type },
-      envelope
-    });
-    
-    // Connect to channel
-    const mixer = this.mixers.get(channel);
-    if (mixer) {
-      synth.connect(mixer.channel);
-    } else {
-      synth.toDestination();
-    }
-    
-    this.sounds.set(name, {
-      type: 'synth',
-      instrument: synth,
-      channel,
-      options: { type, envelope }
-    });
-    
-    return synth;
+    return this._addInstrument(name, 'synth', options);
   }
-  
+
   /**
    * Generate a polyphonic synthesizer
    */
   generatePolySynth(name, options = {}) {
-    const {
-      type = 'triangle',
-      envelope = { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 },
-      channel = 'music',
-      polyphony = 4
-    } = options;
-    
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type },
-      envelope,
-      maxPolyphony: polyphony
-    });
-    
-    const mixer = this.mixers.get(channel);
-    if (mixer) {
-      synth.connect(mixer.channel);
-    } else {
-      synth.toDestination();
-    }
-    
-    this.sounds.set(name, {
-      type: 'polysynth',
-      instrument: synth,
-      channel,
-      options: { type, envelope, polyphony }
-    });
-    
-    return synth;
+    return this._addInstrument(name, 'polysynth', options);
   }
-  
+
   /**
-   * Generate a noise generator (white, pink, brown)
+   * Generate a noise synth. Types: 'white', 'pink', 'brown'
    */
   generateNoise(name, options = {}) {
-    const {
-      type = 'white',
-      envelope = { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 },
-      channel = 'ambient'
-    } = options;
-    
-    const noise = new Tone.NoiseSynth({
-      noise: { type },
-      envelope
-    });
-    
-    const mixer = this.mixers.get(channel);
-    if (mixer) {
-      noise.connect(mixer.channel);
-    } else {
-      noise.toDestination();
-    }
-    
-    this.sounds.set(name, {
-      type: 'noise',
-      instrument: noise,
-      channel,
-      options: { type, envelope }
-    });
-    
-    return noise;
+    return this._addInstrument(name, 'noise', options);
   }
-  
+
   /**
-   * Generate a metal percussion sound
+   * Generate a metallic percussion synth
    */
   generateMetalSynth(name, options = {}) {
-    const {
-      frequency = 200,
-      envelope = { attack: 0.001, decay: 1.4, release: 0.2 },
-      harmonicity = 5.1,
-      modulationIndex = 32,
-      resonance = 4000,
-      octaves = 1.5,
-      channel = 'sfx'
-    } = options;
-    
-    const metal = new Tone.MetalSynth({
-      frequency,
-      envelope,
-      harmonicity,
-      modulationIndex,
-      resonance,
-      octaves
-    });
-    
+    return this._addInstrument(name, 'metal', options);
+  }
+
+  _addInstrument(name, kind, options) {
+    const { node, channel, options: stored } = createInstrument(kind, options);
+    this._connectToChannel(node, channel);
+    this.sounds.set(name, { type: kind, instrument: node, channel, options: stored });
+    return node;
+  }
+
+  _connectToChannel(node, channel) {
     const mixer = this.mixers.get(channel);
     if (mixer) {
-      metal.connect(mixer.channel);
+      node.connect(mixer.channel);
     } else {
-      metal.toDestination();
+      node.toDestination();
     }
-    
-    this.sounds.set(name, {
-      type: 'metal',
-      instrument: metal,
-      channel,
-      options: { frequency, envelope, harmonicity, modulationIndex, resonance, octaves }
-    });
-    
-    return metal;
   }
-  
+
   /**
    * Load an audio sample/file
    */
@@ -228,12 +134,7 @@ class AudioEngine {
         loop,
         playbackRate,
         onload: () => {
-          const mixer = this.mixers.get(channel);
-          if (mixer) {
-            player.connect(mixer.channel);
-          } else {
-            player.toDestination();
-          }
+          this._connectToChannel(player, channel);
           
           this.players.set(name, {
             player,
@@ -265,93 +166,10 @@ class AudioEngine {
    * Types: reverb, delay, distortion, chorus, phaser, tremolo, vibrato, filter
    */
   createEffect(name, type, options = {}) {
-    let effect;
-    
-    switch (type.toLowerCase()) {
-      case 'reverb':
-        effect = new Tone.Reverb({
-          decay: options.decay || 1.5,
-          preDelay: options.preDelay || 0.01,
-          wet: options.wet || 0.5
-        });
-        break;
-        
-      case 'delay':
-        effect = new Tone.FeedbackDelay({
-          delayTime: options.delayTime || 0.25,
-          feedback: options.feedback || 0.5,
-          wet: options.wet || 0.5
-        });
-        break;
-        
-      case 'distortion':
-        effect = new Tone.Distortion({
-          distortion: options.distortion || 0.4,
-          wet: options.wet || 1
-        });
-        break;
-        
-      case 'chorus':
-        effect = new Tone.Chorus({
-          frequency: options.frequency || 1.5,
-          delayTime: options.delayTime || 3.5,
-          depth: options.depth || 0.7,
-          wet: options.wet || 0.5
-        });
-        effect.start();
-        break;
-        
-      case 'phaser':
-        effect = new Tone.Phaser({
-          frequency: options.frequency || 0.5,
-          octaves: options.octaves || 3,
-          baseFrequency: options.baseFrequency || 350,
-          wet: options.wet || 0.5
-        });
-        break;
-        
-      case 'tremolo':
-        effect = new Tone.Tremolo({
-          frequency: options.frequency || 10,
-          depth: options.depth || 0.5,
-          wet: options.wet || 1
-        });
-        effect.start();
-        break;
-        
-      case 'vibrato':
-        effect = new Tone.Vibrato({
-          frequency: options.frequency || 5,
-          depth: options.depth || 0.1,
-          wet: options.wet || 1
-        });
-        break;
-        
-      case 'filter':
-        effect = new Tone.Filter({
-          type: options.filterType || 'lowpass',
-          frequency: options.frequency || 1000,
-          rolloff: options.rolloff || -12,
-          Q: options.Q || 1,
-          wet: options.wet || 1
-        });
-        break;
-        
-      case 'autofilter':
-        effect = new Tone.AutoFilter({
-          frequency: options.frequency || 1,
-          type: options.filterType || 'sine',
-          depth: options.depth || 1,
-          baseFrequency: options.baseFrequency || 200,
-          octaves: options.octaves || 2.6,
-          wet: options.wet || 1
-        });
-        effect.start();
-        break;
-        
-      default:
-        console.error(`Unknown effect type: ${type}`);
-        return null;
+    const effect = createToneEffect(type, options);
+    if (!effect) {
+      console.error(`Unknown effect type: ${type}`);
+      return null;
     }
     
     this.effects.set(name, {
@@ -435,14 +253,7 @@ class AudioEngine {
     }
     
     const { note = 'C4', duration = '8n', velocity = 1, time = undefined } = options;
-    
-    if (sound.type === 'sample') {
-      sound.player.start(time);
-    } else if (sound.type === 'noise' || sound.type === 'metal') {
-      sound.instrument.triggerAttackRelease(duration, time, velocity);
-    } else {
-      sound.instrument.triggerAttackRelease(note, duration, time, velocity);
-    }
+    triggerSound(sound, { note, duration, time, velocity });
   }
   
   /**
@@ -476,13 +287,7 @@ class AudioEngine {
     }
     
     const sequence = new Tone.Sequence((time, note) => {
-      if (sound.type === 'sample') {
-        sound.player.start(time);
-      } else if (sound.type === 'noise' || sound.type === 'metal') {
-        sound.instrument.triggerAttackRelease('8n', time);
-      } else {
-        sound.instrument.triggerAttackRelease(note, '8n', time);
-      }
+      triggerSound(sound, { note, duration: '8n', time });
     }, notes, interval);
     
     sequence.loop = loop;
@@ -501,43 +306,7 @@ class AudioEngine {
       return false;
     }
     
-    const instrument = sound.instrument || sound.player;
-    
-    // Update common parameters
-    if (params.volume !== undefined) {
-      instrument.volume.value = params.volume;
-    }
-    
-    if (sound.type === 'sample') {
-      if (params.playbackRate !== undefined) {
-        instrument.playbackRate = params.playbackRate;
-      }
-      if (params.loop !== undefined) {
-        instrument.loop = params.loop;
-      }
-    } else if (sound.type === 'synth' || sound.type === 'polysynth') {
-      if (params.oscillatorType !== undefined) {
-        instrument.oscillator.type = params.oscillatorType;
-      }
-      if (params.attack !== undefined) {
-        instrument.envelope.attack = params.attack;
-      }
-      if (params.decay !== undefined) {
-        instrument.envelope.decay = params.decay;
-      }
-      if (params.sustain !== undefined) {
-        instrument.envelope.sustain = params.sustain;
-      }
-      if (params.release !== undefined) {
-        instrument.envelope.release = params.release;
-      }
-    } else if (sound.type === 'noise') {
-      if (params.noiseType !== undefined) {
-        instrument.noise.type = params.noiseType;
-      }
-    }
-    
-    // Update stored options
+    updateInstrument(sound, params);
     Object.assign(sound.options, params);
     
     return true;
@@ -556,27 +325,7 @@ class AudioEngine {
     const effect = effectData.effect;
     
     // Update common parameters
-    if (params.wet !== undefined) {
-      effect.wet.value = params.wet;
-    }
-    
-    // Type-specific parameters
-    switch (effectData.type) {
-      case 'reverb':
-        if (params.decay !== undefined) effect.decay = params.decay;
-        break;
-      case 'delay':
-        if (params.delayTime !== undefined) effect.delayTime.value = params.delayTime;
-        if (params.feedback !== undefined) effect.feedback.value = params.feedback;
-        break;
-      case 'distortion':
-        if (params.distortion !== undefined) effect.distortion = params.distortion;
-        break;
-      case 'filter':
-        if (params.frequency !== undefined) effect.frequency.value = params.frequency;
-        if (params.Q !== undefined) effect.Q.value = params.Q;
-        break;
-    }
+    updateToneEffect(effectData.type, effect, params);
     
     Object.assign(effectData.options, params);
     return true;
