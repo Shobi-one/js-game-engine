@@ -4,6 +4,9 @@ import { renderPropertyGroups, renderDeleteRow } from './three/editor/propertyFo
 import { snapshotOf, canSnapshot, currentValues, copyFor } from './three/editor/snapshots.js';
 import { UndoHistory, mergeUpdates } from './editor/undoHistory.js';
 import { editorClipboard, PASTE_OFFSET_3D } from './editor/clipboard.js';
+import { isTypingIn } from './editor/shortcuts.js';
+import { snapSettings } from './editor/snapSettings.js';
+import { TransformGizmo } from './three/editor/transformGizmo.js';
 
 class ThreeEditorUI {
   constructor(threeScene) {
@@ -25,6 +28,7 @@ class ThreeEditorUI {
     
     // Ctrl+Z / Ctrl+Y / Ctrl+D / Ctrl+C / Ctrl+V reach these methods through editor/shortcuts.js in 3D mode.
     this.history = new UndoHistory();
+    this._initGizmo();
     console.log('ThreeEditorUI initialized successfully');
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
@@ -92,6 +96,31 @@ class ThreeEditorUI {
         this.contextMenu.style.display = 'none';
       });
     });
+  }
+
+  _initGizmo() {
+    this.gizmo = new TransformGizmo(this.threeScene, {
+      onDragEnd: (kind, item, before, after) => this._applyDrag(kind, item, before, after),
+      onPick: (kind, id) => this.selectItem(kind, id),
+    });
+    snapSettings.subscribe((on) => this.gizmo.setSnap(on));
+    // The handles hide while the game runs and come back on the selection when it stops.
+    this.threeScene.onRunChange = (running) => {
+      if (running) this.gizmo.detach();
+      else if (this._selected()) this.gizmo.attach(this._selected().kind, this._selected().item);
+    };
+    document.addEventListener('keydown', (e) => {
+      if (window.engineController?.mode !== '3d' || this.threeScene.isRunning) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || isTypingIn(e.target)) return;
+      if (this.gizmo.handleKey(e.key)) e.preventDefault();
+    });
+  }
+
+  /** A finished gizmo drag: keep the item's fields in step with its mesh, and make it one undo step. */
+  _applyDrag(kind, item, before, after) {
+    item.update(after);
+    this.history.record({ type: 'update', kind, id: item.id, prev: before, at: Date.now() });
+    if (this.selectedItem?.type === kind && this.selectedItem.id === item.id) this.renderProperties(item, kind);
   }
 
   _addObject(type) {
@@ -345,6 +374,7 @@ class ThreeEditorUI {
     }
     
     this.renderProperties(item, type);
+    this.gizmo?.attach(type, item);
     
     document.querySelectorAll('#three-explorer .tree-item').forEach(i => i.classList.remove('selected'));
     const el = document.querySelector(`#three-explorer .tree-item[data-type="${type}"][data-id="${id}"]`);
@@ -357,6 +387,7 @@ class ThreeEditorUI {
     this.propertiesPanel.innerHTML = '';
     
     if (!item) {
+      this.gizmo?.detach();
       const noSelection = document.createElement('div');
       noSelection.className = 'no-selection';
       noSelection.innerHTML = `
