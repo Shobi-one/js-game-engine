@@ -309,6 +309,24 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.fps-counter {
+  position: absolute;
+  top: 28px;
+  right: 12px;
+  padding: 1px 6px;
+  font-family: "Courier New", monospace;
+  font-size: var(--font-sm);
+  color: #00ff00;
+  background: rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.fps-counter[hidden] {
+  display: none;
 }
 
 .viewport {

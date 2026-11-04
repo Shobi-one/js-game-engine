@@ -7,6 +7,8 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **2D Game Development** - Create 2D games and animations using p5.js with an intuitive sprite-based system
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
+- **Reset Scene and FPS** - Run → Reset Scene puts everything back the way it was before Run; View → Show FPS shows the frame rate
+- **Installable** - App icons and a manifest, so the editor can be installed as an app
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport
@@ -122,8 +124,10 @@ js-game-engine/
 │   ├── 3d-animation.json
 │   └── 3d-physics.json
 ├── index.html            # Main entry point
-├── manifest.json         # PWA manifest
-├── public/service-worker.js  # Service worker for PWA (copied to dist/)
+├── public/               # Copied as-is to dist/
+│   ├── service-worker.js # Offline support
+│   ├── manifest.json     # PWA manifest
+│   └── icon-192.png, icon-512.png
 ├── CODE_EXAMPLES.js      # Animation code snippets
 └── vite.config.js        # Build configuration
 ```

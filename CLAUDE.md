@@ -5,13 +5,14 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 
 ## Architecture in ten lines
 
-- `public/service-worker.js` is copied as-is to `dist/` (network first, cache as offline fallback). Bump `CACHE_NAME` when you change it.
+- `public/` is copied as-is to `dist/`: `service-worker.js` (network first, cache as offline fallback; bump `CACHE_NAME` when you change it), `manifest.json` and the app icons. Keep the manifest there: a bundled manifest would resolve its paths inside `assets/`.
 - `index.html` is the whole editor UI: menus, panels and modals. It loads every module in `src/` with `<script type="module">`.
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
 - `src/logic/three/`: the 3D side. `ThreeObject.js`, `Light.js` and `ThreeScene.js`, rendered in `#three-container`.
 - `src/logic/threeIntegration.js`: `EngineController` switches 2D/3D mode and wires the File menu to scene loading.
 - `src/logic/sceneLoader.js`: `SceneLoader` turns a JSON file in `scenes/` into sprites or 3D objects. 2D `x/y/width/height` may be strings like `"width/2"`. Every scene in the File menu is a JSON file; don't build scenes in code.
 - `src/logic/ui.js`: `EditorUI`, the 2D editor coordinator (explorer tree, selection, undo/redo, code editor). It uses `editor/undoHistory.js` (stacks) and `editor/propertiesPanel.js` (form fields and rendering). `threeUI.js` is the 3D equivalent: its property groups are defined in `three/editor/propertyDefs.js` and rendered by `three/editor/propertyForm.js`.
+- `src/logic/runReset.js` (Run → Reset Scene: snapshot on the `clipengine:run-start` event, restore on reset) and `fpsCounter.js` (View → Show FPS).
 - `src/logic/behavior.js`: `compileBehavior(code, params)` compiles behavior code once and caches it. Always use it instead of `new Function`.
 - `src/logic/rss/`: `feed.js` (fetch, parse, merge) and `rssPanel.js` (Project → RSS modal). Feed content is untrusted: render it with `textContent`, never `innerHTML`.
 - `src/logic/audioEngine.js` wraps Tone.js (mixers, synths, effects). Effect and instrument types are tables in `audio/effects.js` and `audio/instruments.js`: add a type there. `audioUI.js` is its panel, with markup in `audio/panelTemplate.js` and lists in `audio/lists.js`. Names are user input: build them with DOM nodes, never `innerHTML`.
@@ -52,4 +53,4 @@ First Playwright run on a new machine: `npx playwright install chromium`.
 
 ## Known issues
 
-- `manifest.json` points at `icon-192.png` and `icon-512.png`, which don't exist.
+- None right now. Add one here when you find a bug you are not fixing in the same PR.

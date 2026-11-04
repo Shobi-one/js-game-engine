@@ -2,6 +2,8 @@ import { scene } from './sketch.js';
 import { UndoHistory } from './editor/undoHistory.js';
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
+import { initRunReset } from './runReset.js';
+import { initFpsCounter } from './fpsCounter.js';
 import '../style.css';
 
 class EditorUI {
@@ -314,5 +316,7 @@ class EditorUI {
 
 const ui = new EditorUI(scene);
 window.editorUI = ui;
+initRunReset();
+initFpsCounter();
 
 export { EditorUI };
