@@ -126,30 +126,36 @@ test('Escape still closes other modals', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('a code editor that failed to load says so, and opens after a reload', async ({ page }) => {
-  const errors = trackErrors(page);
-  // Fail the CodeMirror chunk once, as when offline or right after a deploy.
-  let failed = false;
-  await page.route(/codeEditorView.*\.js/, (route) => {
-    if (failed) return route.continue();
-    failed = true;
-    return route.abort();
-  });
-  const openLogic = async () => {
-    await clickMenu(page, 'scene-2d-new');
-    await page.locator('#project-explorer').click({ button: 'right', position: { x: 40, y: 40 } });
-    await page.locator('#explorer-context-menu .menu-item').click();
-    await page.locator('#properties-panel button', { hasText: 'Edit Logic' }).click();
-  };
-  await openEditor(page);
-  await openLogic();
-  // trackErrors records (and dismisses) the alert.
-  await expect.poll(() => errors.filter((e) => e.startsWith('dialog:'))).toEqual([expect.stringMatching(/could not be loaded.*reload/)]);
-  await expect(page.locator('#code-editor-mount .cm-editor')).toHaveCount(0);
+test.describe('without the service worker', () => {
+  // The service worker takes over the page as soon as it activates, and page.route can't
+  // intercept its fetches, so whether the failed chunk load is seen would depend on timing.
+  test.use({ serviceWorkers: 'block' });
 
-  await openEditor(page);
-  await openLogic();
-  await expect(page.locator('#code-editor-mount .cm-editor')).toBeVisible();
-  // The failed request, its warning and the alert are what this test causes on purpose.
-  expect(errors.filter((e) => !/ERR_FAILED|^dialog: The code editor could not be loaded/.test(e))).toEqual([]);
+  test('a code editor that failed to load says so, and opens after a reload', async ({ page }) => {
+    const errors = trackErrors(page);
+    // Fail the CodeMirror chunk once, as when offline or right after a deploy.
+    let failed = false;
+    await page.route(/codeEditorView.*\.js/, (route) => {
+      if (failed) return route.continue();
+      failed = true;
+      return route.abort();
+    });
+    const openLogic = async () => {
+      await clickMenu(page, 'scene-2d-new');
+      await page.locator('#project-explorer').click({ button: 'right', position: { x: 40, y: 40 } });
+      await page.locator('#explorer-context-menu .menu-item').click();
+      await page.locator('#properties-panel button', { hasText: 'Edit Logic' }).click();
+    };
+    await openEditor(page);
+    await openLogic();
+    // trackErrors records (and dismisses) the alert.
+    await expect.poll(() => errors.filter((e) => e.startsWith('dialog:'))).toEqual([expect.stringMatching(/could not be loaded.*reload/)]);
+    await expect(page.locator('#code-editor-mount .cm-editor')).toHaveCount(0);
+
+    await openEditor(page);
+    await openLogic();
+    await expect(page.locator('#code-editor-mount .cm-editor')).toBeVisible();
+    // The failed request, its warning and the alert are what this test causes on purpose.
+    expect(errors.filter((e) => !/ERR_FAILED|^dialog: The code editor could not be loaded/.test(e))).toEqual([]);
+  });
 });
