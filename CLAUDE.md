@@ -5,7 +5,7 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 
 ## Architecture in ten lines
 
-- `public/service-worker.js` is copied as-is to `dist/` (network first, cache as offline fallback). Bump `CACHE_NAME` when you change it.
+- `public/` is copied as-is to `dist/`: `service-worker.js` (network first, cache as offline fallback; bump `CACHE_NAME` when you change it), `manifest.json` and the app icons. Keep the manifest there: a bundled manifest would resolve its paths inside `assets/`.
 - `index.html` is the whole editor UI: menus, panels and modals. It loads every module in `src/` with `<script type="module">`.
 - `src/logic/sketch.js`: the 2D side. `Sprite`, `Scene` and `GameController`, on a p5 instance-mode sketch in `#canvas-container`.
 - `src/logic/three/`: the 3D side. `ThreeObject.js`, `Light.js` and `ThreeScene.js`, rendered in `#three-container`.
@@ -15,6 +15,7 @@ Live at https://shobi-one.github.io/js-game-engine/ (deployed from `main` by `.g
 - `threeUI.js` is the 3D equivalent. Its property groups are defined in `three/editor/propertyDefs.js` and rendered by `three/editor/propertyForm.js`; `three/editor/transformGizmo.js` adds move/rotate/scale handles (W/E/R) and click-to-select in the view.
 - Editor shortcuts (Ctrl+Z/Y/D/C/V) and the Undo, Redo and Edit menu go through `editor/shortcuts.js`, which calls `undo`, `redo`, `duplicate`, `copy` or `paste` on the editor for the current mode. Both editors record property edits with `mergeUpdates`, so a slider drag is one undo step. `editor/snapSettings.js` holds View → Snap to Grid for both editors.
 - `src/logic/sceneSerializer.js` turns the open scene back into that JSON. `sceneFiles.js` (download, open, autosave in `localStorage`) and `sceneFilesMenu.js` (File → Save Scene / Open Scene File / Restore Autosave, Ctrl+S, Ctrl+O) use it. A new sprite, object or light field must be added to both the serializer and `SceneLoader`.
+- `src/logic/runReset.js` (Run → Reset Scene: a reset point taken on the first run, kept across Stop/Run; edits made while stopped are folded in on `clipengine:run-start` and `clipengine:run-stop`) and `fpsCounter.js` (View → Show FPS).
 - `src/logic/behavior.js`: `compileBehavior(code, params)` compiles behavior code once and caches it. Always use it instead of `new Function` (the one exception is `editor/codeProblems.js`, which checks drafts while they are typed).
 - `src/logic/editor/codeEditor.js`: the behavior code editor (CodeMirror 6, its own chunk, preloaded when idle). Problems come from `editor/codeProblems.js`. The editable area keeps the id `#code-editor-textarea`; in Playwright, `fill` and `keyboard.type` work on it.
 - `src/logic/rss/`: `feed.js` (fetch, parse, merge) and `rssPanel.js` (Project → RSS modal). Feed content is untrusted: render it with `textContent`, never `innerHTML`.
@@ -56,4 +57,4 @@ First Playwright run on a new machine: `npx playwright install chromium`.
 
 ## Known issues
 
-- `manifest.json` points at `icon-192.png` and `icon-512.png`, which don't exist.
+- None right now. Add one here when you find a bug you are not fixing in the same PR.

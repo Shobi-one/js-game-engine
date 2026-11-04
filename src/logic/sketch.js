@@ -277,12 +277,14 @@ class GameController {
   }
 
   startGame() {
+    if (!this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-start', { detail: { mode: '2d' } }));
     this.isRunning = true;
     document.getElementById('canvas-container').classList.remove('paused');
     document.getElementById('run-menu').style.display = 'none';
   }
 
   stopGame() {
+    if (this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-stop', { detail: { mode: '2d' } }));
     this.isRunning = false;
     document.getElementById('canvas-container').classList.add('paused');
     document.getElementById('run-menu').style.display = 'none';

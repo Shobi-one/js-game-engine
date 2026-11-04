@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  <!-- In public/, so the manifest and icons are served next to index.html (a bundled manifest would resolve its paths inside assets/). -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icon-192.png">
   <meta name="theme-color" content="#222222">
   <link rel="stylesheet" href="/src/style.css">
   <title>ClipEngine</title>
@@ -52,6 +54,7 @@
       <div id="run-menu" class="dropdown-menu">
         <menu-item text="Run Game" shortcut="F6" id="run-game"></menu-item>
         <menu-item text="Stop Game" shortcut="Shift+F6" id="stop-game"></menu-item>
+        <menu-item text="Reset Scene" id="reset-game"></menu-item>
       </div>
       <div id="view-menu" class="dropdown-menu">
         <menu-item text="2D Mode (p5.js)" id="view-2d"></menu-item>
@@ -59,6 +62,7 @@
         <menu-item text="Toggle Project Panel" id="toggle-project-panel"></menu-item>
         <menu-item text="Toggle Properties Panel" id="toggle-properties-panel"></menu-item>
         <menu-item text="Snap to Grid: Off" id="view-snap"></menu-item>
+        <menu-item text="Show FPS: Off" id="view-fps"></menu-item>
       </div>
       <div id="project-menu" class="dropdown-menu">
         <menu-item text="Open RSS Feeds" id="open-rss-menu"></menu-item>
@@ -93,6 +97,7 @@
         </div>
         <div class="viewport" id="canvas-container"></div>
         <div class="viewport hidden" id="three-container"></div>
+        <div class="fps-counter" id="fps-counter" role="status" hidden></div>
       </div>
 
       <div class="right-panel panel">

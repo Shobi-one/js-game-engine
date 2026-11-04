@@ -7,6 +7,8 @@ import { editorClipboard, spriteConfig, PASTE_OFFSET_2D } from './editor/clipboa
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
 import { openCodeEditor, preloadCodeEditor } from './editor/codeEditor.js';
+import { initRunReset } from './runReset.js';
+import { initFpsCounter } from './fpsCounter.js';
 import '../style.css';
 
 class EditorUI {
@@ -337,5 +339,7 @@ initCanvasDrag({
   canEdit: () => (window.engineController?.mode ?? '2d') === '2d' && !window.gameController?.isRunning,
 });
 preloadCodeEditor();
+initRunReset();
+initFpsCounter();
 
 export { EditorUI };

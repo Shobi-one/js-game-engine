@@ -11,6 +11,8 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **3D Handles** - Click an object in the 3D view and drag it to move (W), rotate (E) or scale (R); View → Snap to Grid snaps to 1 unit and 15°
 - **2D Dragging** - Click and drag sprites on the canvas; with Snap to Grid on they snap to a 20 px grid
 - **Code Editor** - Line numbers, JavaScript highlighting, bracket matching, search, and errors marked on their line (including the last runtime error)
+- **Reset Scene and FPS** - Run → Reset Scene puts everything back the way it was before Run; View → Show FPS shows the frame rate
+- **Installable** - App icons and a manifest, so the editor can be installed as an app
 - **Save and Load** - Save your scene to a JSON file (Ctrl+S), open it again (Ctrl+O), and restore the autosave after a refresh
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
@@ -127,8 +129,10 @@ js-game-engine/
 │   ├── 3d-animation.json
 │   └── 3d-physics.json
 ├── index.html            # Main entry point
-├── manifest.json         # PWA manifest
-├── public/service-worker.js  # Service worker for PWA (copied to dist/)
+├── public/               # Copied as-is to dist/
+│   ├── service-worker.js # Offline support
+│   ├── manifest.json     # PWA manifest
+│   └── icon-192.png, icon-512.png
 ├── CODE_EXAMPLES.js      # Animation code snippets
 └── vite.config.js        # Build configuration
 ```

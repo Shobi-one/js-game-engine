@@ -380,11 +380,13 @@ class ThreeScene {
   }
 
   start() {
+    if (!this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-start', { detail: { mode: '3d' } }));
     this.isRunning = true;
     this.onRunChange?.(true);
   }
 
   stop() {
+    if (this.isRunning) window.dispatchEvent(new CustomEvent('clipengine:run-stop', { detail: { mode: '3d' } }));
     this.isRunning = false;
     this.onRunChange?.(false);
   }
