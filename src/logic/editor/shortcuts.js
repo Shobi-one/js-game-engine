@@ -13,6 +13,19 @@ export function isTypingIn(target) {
   return target.tagName === 'INPUT' && TEXT_INPUT_TYPES.has(target.type);
 }
 
+const FORM_FIELDS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+
+/**
+ * Whether a shortcut should go to the editor rather than the browser. In any form
+ * field, copy, paste and duplicate stay native (Ctrl+V pastes a number). Undo and
+ * redo still reach the editor from number fields and sliders, which commit their
+ * edit on blur, but not from text fields or the code editor.
+ */
+export function shortcutApplies(command, target) {
+  if (command === 'undo' || command === 'redo') return !isTypingIn(target);
+  return !(target && (target.isContentEditable || FORM_FIELDS.has(target.tagName)));
+}
+
 /** The command for a key event, or null. */
 export function commandForKey(e) {
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return null;
@@ -27,12 +40,13 @@ export function activeEditor() {
   return engine?.mode === '3d' ? engine.threeUI : window.editorUI;
 }
 
+/** Runs a command on the active editor. Returns true when the editor did something. */
 export function runCommand(name) {
   // A field being edited (say X in the properties panel) commits its change on blur.
   // Blur first, so that change is recorded before an undo instead of after it.
   const focused = document.activeElement;
   if (focused?.tagName === 'INPUT' || focused?.tagName === 'SELECT') focused.blur();
-  activeEditor()?.[name]?.();
+  return Boolean(activeEditor()?.[name]?.());
 }
 
 const MENU_COMMANDS = {
@@ -45,11 +59,11 @@ const MENU_COMMANDS = {
 
 export function initEditorShortcuts(doc = document) {
   doc.addEventListener('keydown', (e) => {
-    if (isTypingIn(e.target)) return;
     const command = commandForKey(e);
-    if (!command) return;
-    e.preventDefault();
-    runCommand(command);
+    if (!command || !shortcutApplies(command, e.target)) return;
+    // Only take the key when the editor used it, so Ctrl+C still copies selected text
+    // when nothing in the scene is selected.
+    if (runCommand(command)) e.preventDefault();
   });
 
   for (const [id, command] of Object.entries(MENU_COMMANDS)) {

@@ -27,10 +27,11 @@ export function currentValues(item, update) {
   return Object.fromEntries(Object.keys(update).map((key) => [key, structuredClone(item[key])]));
 }
 
-/** A copy for paste or duplicate: no id, " copy" added to the name, moved along x. */
+/** A copy for paste or duplicate: no id, " copy" added to the name, moved along x (a light's target too, so it points the same way). */
 export function copyFor(config, offset) {
   const { id, ...rest } = structuredClone(config);
   rest.name = `${rest.name} copy`;
   if (rest.position) rest.position.x += offset;
+  if (rest.target) rest.target.x += offset;
   return rest;
 }

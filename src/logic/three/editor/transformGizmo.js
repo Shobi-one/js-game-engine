@@ -61,7 +61,11 @@ export class TransformGizmo {
   _initPicking(dom) {
     // A click selects; a drag (orbiting the camera or a gizmo handle) does not.
     let down = null;
-    dom.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+    dom.addEventListener('pointerdown', (e) => {
+      down = { x: e.clientX, y: e.clientY };
+      // A drag released outside the canvas never reaches pointerup here.
+      this._justDragged = false;
+    });
     dom.addEventListener('pointerup', (e) => {
       const moved = down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4;
       const wasGizmo = this._justDragged || this.controls.axis !== null;
