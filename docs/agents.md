@@ -89,7 +89,7 @@ How it fits together: Claude Code starts `mcp/server.js`, which listens on `127.
 
 To add a tool: describe it in `mcp/tools.js` and add its editor half to `src/logic/mcp/editorTools.js` with the same name (a unit test checks both lists match). `tests/e2e/mcp.spec.js` drives the real server end to end.
 
-If the dot stays grey: check that Claude Code is running in this repo and `/mcp` lists `clipengine`. If another Claude Code session already uses port 7357, the tools say so; close that session or set another port.
+If the dot stays grey: check that Claude Code is running in this repo and `/mcp` lists `clipengine`. If another Claude Code session already uses port 7357, the tools say so; close that session or set another port. Claude talks to one editor tab, the newest: an older tab goes grey and stays unlinked until you reload it.
 
 ## The feature loop
 

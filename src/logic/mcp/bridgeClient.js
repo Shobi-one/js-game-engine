@@ -5,11 +5,14 @@
  * URL (?claude=PORT picks another port). The live site never connects.
  *
  * The "Claude" dot in the menu bar shows the link: grey while waiting for the server,
- * green when connected.
+ * green when connected. Claude talks to one tab: when another tab connects, this one stops
+ * retrying (otherwise the two would keep taking the link from each other) until it is reloaded.
  */
 import { runEditorTool } from './editorTools.js';
 
 export const DEFAULT_PORT = 7357;
+/** Matches REPLACED_CODE in mcp/bridge.js. */
+export const REPLACED_CODE = 4000;
 const RETRY_MS = [1000, 2000, 5000, 10000];
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -23,13 +26,17 @@ export function bridgePort(location, isDev) {
   return Number.isInteger(port) && port > 0 && port < 65536 ? port : DEFAULT_PORT;
 }
 
+const STATUS_TITLES = {
+  connected: 'Claude is connected to this editor through the ClipEngine MCP server.',
+  waiting: 'Waiting for the ClipEngine MCP server. Open Claude Code in the repo to start it.',
+  replaced: 'Claude is linked to another editor tab. Reload this tab to link it instead.',
+};
+
 function setStatus(element, state) {
   if (!element) return;
   element.hidden = false;
   element.dataset.state = state;
-  element.title = state === 'connected'
-    ? 'Claude is connected to this editor through the ClipEngine MCP server.'
-    : 'Waiting for the ClipEngine MCP server. Open Claude Code in the repo to start it.';
+  element.title = STATUS_TITLES[state];
 }
 
 export function initClaudeBridge({ location = window.location, isDev = import.meta.env.DEV } = {}) {
@@ -61,7 +68,11 @@ export function initClaudeBridge({ location = window.location, isDev = import.me
         socket.send(JSON.stringify({ id: call.id, error: error?.message ?? String(error) }));
       }
     });
-    socket.addEventListener('close', () => {
+    socket.addEventListener('close', (event) => {
+      if (event.code === REPLACED_CODE) {
+        setStatus(status, 'replaced');
+        return;
+      }
       setStatus(status, 'waiting');
       setTimeout(connect, RETRY_MS[Math.min(attempt++, RETRY_MS.length - 1)]);
     });

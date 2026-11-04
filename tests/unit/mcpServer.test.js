@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import WebSocket from 'ws';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { EditorBridge, isLocalOrigin } from '../../mcp/bridge.js';
+import { EditorBridge, isLocalOrigin, REPLACED_CODE } from '../../mcp/bridge.js';
 import { createServer } from '../../mcp/server.js';
 import { TOOLS } from '../../mcp/tools.js';
 import { EDITOR_TOOLS } from '../../src/logic/mcp/editorTools.js';
@@ -84,6 +84,17 @@ describe('MCP bridge to the editor', () => {
     const { bridge, port } = await startBridge();
     await fakeEditor(port, () => 'old tab');
     await fakeEditor(port, () => 'new tab');
+    expect(await bridge.call('get_scene')).toBe('new tab');
+  });
+
+  it('fails calls left with a tab that another tab replaced, and tells that tab', async () => {
+    const { bridge, port } = await startBridge();
+    const oldTab = await fakeEditor(port, () => new Promise(() => {}));
+    const closed = new Promise((resolve) => oldTab.on('close', resolve));
+    const failed = expect(bridge.call('get_scene')).rejects.toThrow(/closed before it answered/);
+    await fakeEditor(port, () => 'new tab');
+    await failed;
+    expect(await closed).toBe(REPLACED_CODE);
     expect(await bridge.call('get_scene')).toBe('new tab');
   });
 

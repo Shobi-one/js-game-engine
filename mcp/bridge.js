@@ -11,6 +11,8 @@
 import { WebSocketServer } from 'ws';
 
 export const DEFAULT_PORT = 7357;
+/** The close code an editor tab gets when a newer tab takes the link; that tab then stops reconnecting. */
+export const REPLACED_CODE = 4000;
 
 const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 
@@ -63,19 +65,22 @@ export class EditorBridge {
         socket.close(1008, 'not a ClipEngine editor');
         return;
       }
-      if (this.editor && this.editor !== socket) this.editor.close(1000, 'another editor tab connected');
+      if (this.editor && this.editor !== socket) this.editor.close(REPLACED_CODE, 'another editor tab connected');
       this.editor = socket;
       this.log('ClipEngine editor connected');
       socket.on('message', (data) => this._onMessage(data));
     });
     socket.on('close', () => {
+      // Calls sent to this tab can no longer be answered, even when a newer tab replaced it.
+      for (const [id, waiting] of this.pending) {
+        if (waiting.socket !== socket) continue;
+        clearTimeout(waiting.timer);
+        this.pending.delete(id);
+        waiting.reject(new Error('The editor tab closed before it answered.'));
+      }
       if (this.editor !== socket) return;
       this.editor = null;
       this.log('ClipEngine editor disconnected');
-      for (const [id, { reject }] of this.pending) {
-        reject(new Error('The editor tab closed before it answered.'));
-        this.pending.delete(id);
-      }
     });
   }
 
@@ -114,7 +119,7 @@ export class EditorBridge {
         this.pending.delete(id);
         reject(new Error(`The editor did not answer "${tool}" within ${this.timeoutMs / 1000} s.`));
       }, this.timeoutMs);
-      this.pending.set(id, { resolve, reject, timer });
+      this.pending.set(id, { resolve, reject, timer, socket: this.editor });
       this.editor.send(JSON.stringify({ id, tool, args }));
     });
   }

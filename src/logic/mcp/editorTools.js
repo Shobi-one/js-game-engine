@@ -50,6 +50,19 @@ function isRunning(engine) {
   return engine.mode === '3d' ? Boolean(engine.threeScene?.isRunning) : Boolean(window.gameController?.isRunning);
 }
 
+const VECTOR_PROPS = ['position', 'rotation', 'scale', 'target'];
+
+/** Refuses a 3D vector that isn't {x, y, z} numbers before anything changes, so a bad call leaves no half edit or undo step. */
+function checkVectors(props) {
+  for (const key of VECTOR_PROPS) {
+    if (!(key in props)) continue;
+    const value = props[key];
+    const ok = value && typeof value === 'object' && !Array.isArray(value)
+      && Object.entries(value).every(([axis, n]) => ['x', 'y', 'z'].includes(axis) && Number.isFinite(n));
+    if (!ok) throw new Error(`${key} must be an object of numbers, like { "x": 0, "y": 1, "z": 0 }; got ${JSON.stringify(value)}.`);
+  }
+}
+
 const codeParams = (kind) => (kind === 'sprite' ? ['width', 'height'] : ['THREE']);
 
 function addItem({ kind, props = {} }) {
@@ -61,6 +74,7 @@ function addItem({ kind, props = {} }) {
     ui.selectItem('sprite', sprite.id);
     return spriteSummary(sprite);
   }
+  checkVectors(props);
   const defaults = kind === 'light'
     ? { type: 'point', name: `Light ${threeScene.lights.length}`, color: '#ffffff', intensity: 1, position: { x: 2, y: 4, z: 2 } }
     : { type: 'box', name: `Object ${threeScene.objects.length}`, color: '#4488ff', position: { x: 0, y: 1, z: 0 } };
@@ -80,9 +94,11 @@ function updateItem({ kind, id, props = {} }) {
     ui._pushUndo({ type: 'update', kind: 'sprite', id, prev, at: Date.now() });
     if (ui.selectedItem?.id === id) ui.renderProperties(item);
   } else {
-    threeUI.history.record({ type: 'update', kind, id, prev: currentValues(item, props), at: Date.now() });
+    checkVectors(props);
+    const prev = currentValues(item, props);
     if (kind === 'light') threeScene.updateLight(id, props);
     else threeScene.updateObject(id, props);
+    threeUI.history.record({ type: 'update', kind, id, prev, at: Date.now() });
     if (threeUI.selectedItem?.type === kind && threeUI.selectedItem.id === id) threeUI.renderProperties(item, kind);
   }
   const result = kind === 'sprite' ? spriteSummary(item) : item3DSummary(kind, item);
@@ -98,8 +114,14 @@ function deleteItem({ kind, id }) {
   useMode(engine, modeFor(kind));
   const { ui, threeUI } = editor();
   const item = find(kind, id);
-  if (kind === 'sprite') ui.deleteSprite(id);
-  else threeUI._deleteSelected(kind, item);
+  if (kind === 'sprite') {
+    ui.deleteSprite(id);
+  } else {
+    // Deleting clears the selection; keep the user's if they had something else selected.
+    const kept = threeUI.selectedItem;
+    threeUI._deleteSelected(kind, item);
+    if (kept && !(kept.type === kind && kept.id === id)) threeUI.selectItem(kept.type, kept.id);
+  }
   return { deleted: { kind, id } };
 }
 

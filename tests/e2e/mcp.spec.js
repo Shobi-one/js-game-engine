@@ -105,6 +105,18 @@ test('Claude builds a 3D scene with an object and a light', async ({ page }) => 
   const shot = await call('screenshot');
   expect(Buffer.from(shot.data, 'base64').length).toBeGreaterThan(1000);
 
+  // A bad vector is refused before anything changes, so it leaves no undo step behind.
+  await expect(call('update_item', { kind: 'object', id: sphere.id, props: { position: 5 } })).rejects.toThrow(/position must be/);
+  expect((await call('get_scene')).objects.find((o) => o.id === sphere.id).position).toEqual({ x: 1, y: 3, z: 0 });
+  await call('history', { action: 'undo' });
+  expect((await call('get_scene')).lights.some((l) => l.id === light.id)).toBe(false);
+  await call('history', { action: 'redo' });
+
+  // Deleting something else keeps what the user has selected.
+  await page.locator(`#three-explorer .tree-item[data-type="light"][data-id="${light.id}"]`).click();
+  await call('delete_item', { kind: 'object', id: sphere.id });
+  expect(await page.evaluate(() => window.engineController.threeUI.selectedItem)).toEqual({ type: 'light', id: light.id });
+
   await call('set_mode', { mode: '2d' });
   await expect(page.locator('#canvas-container')).toBeVisible();
   expect(errors).toEqual([]);
