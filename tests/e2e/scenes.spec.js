@@ -9,6 +9,9 @@ const scenes2D = [
 const scenes3D = [
   { menu: 'scene-3d-empty', name: '3d-empty' },
   { menu: 'scene-3d-example', name: '3d-example' },
+  { menu: 'scene-3d-lighting', name: '3d-lighting' },
+  { menu: 'scene-3d-animation', name: '3d-animation' },
+  { menu: 'scene-3d-physics', name: '3d-physics' },
 ];
 
 test('editor loads with no errors', async ({ page }) => {

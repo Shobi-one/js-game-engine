@@ -122,6 +122,13 @@ class EngineController {
       this._loadPresetScene('scenes/3d-example.json');
       fileDropdown.style.display = 'none';
     });
+
+    for (const name of ['lighting', 'animation', 'physics']) {
+      document.getElementById(`scene-3d-${name}`).addEventListener('click', () => {
+        this._loadPresetScene(`scenes/3d-${name}.json`);
+        fileDropdown.style.display = 'none';
+      });
+    }
   }
 
   async _load2DScene(jsonPath) {
