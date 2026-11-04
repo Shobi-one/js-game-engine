@@ -2,6 +2,7 @@ import { scene } from './sketch.js';
 import { UndoHistory } from './editor/undoHistory.js';
 import { spritePropertyGroups, renderPropertyForm } from './editor/propertiesPanel.js';
 import { RssPanel } from './rss/rssPanel.js';
+import { openCodeEditor, preloadCodeEditor } from './editor/codeEditor.js';
 import '../style.css';
 
 class EditorUI {
@@ -20,15 +21,6 @@ class EditorUI {
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
     this.rss = new RssPanel();
-
-    this.codeEditorModal = document.getElementById('code-editor-modal');
-    this.codeEditorTextarea = document.getElementById('code-editor-textarea');
-    this.codeEditorClose = document.getElementById('code-editor-close');
-    this.codeEditorApply = document.getElementById('code-editor-apply');
-
-    if (this.codeEditorModal) {
-      this._initCodeEditor();
-    }
 
     this.history = new UndoHistory();
 
@@ -52,44 +44,16 @@ class EditorUI {
     if (redoBtn) redoBtn.addEventListener('click', () => this.redo());
   }
 
-  _initCodeEditor() {
-    // Close button is now handled by the modal component
-    // ESC key is also handled by the modal component
-
-    this.codeEditorTextarea.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = this.codeEditorTextarea.selectionStart;
-        const end = this.codeEditorTextarea.selectionEnd;
-        this.codeEditorTextarea.value = 
-          this.codeEditorTextarea.value.substring(0, start) + 
-          '  ' + 
-          this.codeEditorTextarea.value.substring(end);
-        this.codeEditorTextarea.selectionStart = this.codeEditorTextarea.selectionEnd = start + 2;
-      }
-    });
-  }
-
   _showCodeEditor(item, code, onChange) {
-    this.codeEditorTextarea.value = code || '';
-    this.codeEditorModal.show();
-    this.codeEditorTextarea.focus();
-
-    if (this._currentApplyHandler) {
-      this.codeEditorApply.removeEventListener('click', this._currentApplyHandler);
-    }
-
-    this._currentApplyHandler = () => {
-      const newCode = this.codeEditorTextarea.value;
-      onChange(newCode);
-
-      if (item) {
-        item.code = newCode;
-      }
-      this.codeEditorModal.hide();
-    };
-
-    this.codeEditorApply.addEventListener('click', this._currentApplyHandler);
+    openCodeEditor({
+      code,
+      params: ['width', 'height'],
+      runtimeError: item?._lastCodeError ?? null,
+      onApply: (newCode) => {
+        onChange(newCode);
+        if (item) item.code = newCode;
+      },
+    });
   }
 
   _initContextMenu() {
@@ -314,5 +278,6 @@ class EditorUI {
 
 const ui = new EditorUI(scene);
 window.editorUI = ui;
+preloadCodeEditor();
 
 export { EditorUI };

@@ -1,6 +1,7 @@
 import { ThreeScene } from './three/ThreeScene.js';
 import { objectPropertyGroups, lightPropertyGroups } from './three/editor/propertyDefs.js';
 import { renderPropertyGroups, renderDeleteRow } from './three/editor/propertyForm.js';
+import { openCodeEditor } from './editor/codeEditor.js';
 
 class ThreeEditorUI {
   constructor(threeScene) {
@@ -23,7 +24,6 @@ class ThreeEditorUI {
     console.log('ThreeEditorUI initialized successfully');
     this.contextMenu.style.display = 'none';
     this._initContextMenu();
-    this._initCodeEditor();
     this._populateExplorer();
   }
 
@@ -115,49 +115,16 @@ class ThreeEditorUI {
     }
   }
 
-  _initCodeEditor() {
-    this.codeEditorModal = document.getElementById('code-editor-modal');
-    this.codeEditorTextarea = document.getElementById('code-editor-textarea');
-    this.codeEditorApply = document.getElementById('code-editor-apply');
-    
-    if (this.codeEditorModal) {
-      // Close button and ESC key are now handled by the modal component
-      
-      this.codeEditorTextarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          const start = this.codeEditorTextarea.selectionStart;
-          const end = this.codeEditorTextarea.selectionEnd;
-          this.codeEditorTextarea.value = 
-            this.codeEditorTextarea.value.substring(0, start) + 
-            '  ' + 
-            this.codeEditorTextarea.value.substring(end);
-          this.codeEditorTextarea.selectionStart = this.codeEditorTextarea.selectionEnd = start + 2;
-        }
-      });
-    }
-  }
-
   _showCodeEditor(item, code, onChange) {
-    this.codeEditorTextarea.value = code || '';
-    this.codeEditorModal.show();
-    this.codeEditorTextarea.focus();
-    
-    if (this._currentApplyHandler) {
-      this.codeEditorApply.removeEventListener('click', this._currentApplyHandler);
-    }
-    
-    this._currentApplyHandler = () => {
-      const newCode = this.codeEditorTextarea.value;
-      onChange(newCode);
-      
-      if (item) {
-        item.code = newCode;
-      }
-      this.codeEditorModal.hide();
-    };
-    
-    this.codeEditorApply.addEventListener('click', this._currentApplyHandler);
+    openCodeEditor({
+      code,
+      params: ['THREE'],
+      runtimeError: item?._lastCodeError ?? null,
+      onApply: (newCode) => {
+        onChange(newCode);
+        if (item) item.code = newCode;
+      },
+    });
   }
 
   _populateExplorer() {

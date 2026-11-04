@@ -7,6 +7,7 @@ A browser-based game engine and visual editor for creating 2D and 3D interactive
 - **2D Game Development** - Create 2D games and animations using p5.js with an intuitive sprite-based system
 - **3D Scene Editor** - Build 3D environments with Three.js including primitives, custom models, and lighting
 - **Visual Code Editor** - Edit object behaviors with a built-in code editor
+- **Code Editor** - Line numbers, JavaScript highlighting, bracket matching, search, and errors marked on their line (including the last runtime error)
 - **Audio Engine** - Integrated audio system powered by Tone.js for sound effects and music
 - **Scene Management** - Load scenes with JSON-based configuration
 - **Live Preview** - See your changes in real-time with the built-in viewport
