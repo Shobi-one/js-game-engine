@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeVectors } from './vectors.js';
 import { compileBehavior } from '../behavior.js';
 
 // One mesh in a 3D scene: geometry, material, optional model animations and behavior code.
@@ -138,6 +139,8 @@ class ThreeObject {
   update(props) {
     // New code gets a fresh chance to report its errors.
     if ('code' in props) this._lastCodeError = null;
+    // The properties panel sends one axis at a time ({ position: { x } }): keep the other axes.
+    props = mergeVectors(this, props);
     Object.assign(this, props);
     
     if (this.mesh) {

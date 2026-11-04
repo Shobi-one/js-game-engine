@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeVectors } from './vectors.js';
 
 // A light in a 3D scene, with an optional helper gizmo.
 class Light {
@@ -68,6 +69,8 @@ class Light {
   }
 
   update(props) {
+    // The properties panel sends one axis at a time ({ position: { x } }): keep the other axes.
+    props = mergeVectors(this, props);
     Object.assign(this, props);
     
     if (this.light) {
