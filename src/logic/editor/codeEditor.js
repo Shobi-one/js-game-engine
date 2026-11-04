@@ -16,19 +16,31 @@ function load() {
     mount: document.getElementById('code-editor-mount'),
     applyButton: document.getElementById('code-editor-apply'),
     status: document.getElementById('code-editor-status'),
-  }));
+  })).catch((error) => {
+    // Don't keep the failure: engines that allow re-importing a failed module can retry on
+    // the next open. Chrome keeps it for the page's lifetime, hence "reload" in the message.
+    loading = null;
+    throw error;
+  });
   return loading;
 }
 
 /** Starts loading the editor in the background. */
 export function preloadCodeEditor() {
   const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1000));
-  idle(() => load().catch(() => { loading = null; }));
+  idle(() => load().catch(() => {}));
 }
 
 /** Opens the editor. See CodeEditor.open for the options. */
 export async function openCodeEditor(options) {
-  const editor = await load();
+  let editor;
+  try {
+    editor = await load();
+  } catch (error) {
+    console.warn('The code editor could not be loaded:', error);
+    alert('The code editor could not be loaded. Check your connection, then reload the page.');
+    return null;
+  }
   editor.open(options);
   return editor;
 }

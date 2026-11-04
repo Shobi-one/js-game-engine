@@ -114,3 +114,42 @@ test('Escape closes the autocomplete popup first, then the editor', async ({ pag
   await expect(page.locator('#code-editor-mount .cm-editor')).toBeHidden();
   expect(errors).toEqual([]);
 });
+
+test('Escape still closes other modals', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openEditor(page);
+  await clickMenu(page, 'open-rss-menu');
+  await expect(page.locator('#rss-feed-1')).toBeVisible();
+  await page.locator('#rss-feed-1').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#rss-feed-1')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('a code editor that failed to load says so, and opens after a reload', async ({ page }) => {
+  const errors = trackErrors(page);
+  // Fail the CodeMirror chunk once, as when offline or right after a deploy.
+  let failed = false;
+  await page.route(/codeEditorView.*\.js/, (route) => {
+    if (failed) return route.continue();
+    failed = true;
+    return route.abort();
+  });
+  const openLogic = async () => {
+    await clickMenu(page, 'scene-2d-new');
+    await page.locator('#project-explorer').click({ button: 'right', position: { x: 40, y: 40 } });
+    await page.locator('#explorer-context-menu .menu-item').click();
+    await page.locator('#properties-panel button', { hasText: 'Edit Logic' }).click();
+  };
+  await openEditor(page);
+  await openLogic();
+  // trackErrors records (and dismisses) the alert.
+  await expect.poll(() => errors.filter((e) => e.startsWith('dialog:'))).toEqual([expect.stringMatching(/could not be loaded.*reload/)]);
+  await expect(page.locator('#code-editor-mount .cm-editor')).toHaveCount(0);
+
+  await openEditor(page);
+  await openLogic();
+  await expect(page.locator('#code-editor-mount .cm-editor')).toBeVisible();
+  // The failed request, its warning and the alert are what this test causes on purpose.
+  expect(errors.filter((e) => !/ERR_FAILED|^dialog: The code editor could not be loaded/.test(e))).toEqual([]);
+});

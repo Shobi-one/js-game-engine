@@ -9,7 +9,7 @@ import { linter, forceLinting } from '@codemirror/lint';
 import { EditorState } from '@codemirror/state';
 import { indentWithTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
-import { runtimeErrorLine, syntaxError } from './codeProblems.js';
+import { runtimeErrorLine, syntaxError, engineOnlySyntaxErrorLine } from './codeProblems.js';
 
 /**
  * Problems in `state`, as CodeMirror diagnostics. Syntax errors are placed with
@@ -18,25 +18,34 @@ import { runtimeErrorLine, syntaxError } from './codeProblems.js';
  */
 export function findProblems(state, { params = [], runtimeError = null, originalCode = null } = {}) {
   const code = state.doc.toString();
-  const problems = [];
   const message = syntaxError(code, params);
   if (message) {
     const errorNodes = [];
     syntaxTree(state).iterate({ enter: (node) => { if (node.type.isError) errorNodes.push(node.from); } });
-    const from = errorNodes.length ? Math.min(...errorNodes) : 0;
-    const line = state.doc.lineAt(Math.min(from, state.doc.length));
-    problems.push({ from: line.from, to: line.to, severity: 'error', message: `Syntax error: ${message}` });
-  } else if (runtimeError && code === originalCode) {
-    const lineNo = runtimeErrorLine(runtimeError);
-    const line = lineNo && lineNo <= state.doc.lines ? state.doc.line(lineNo) : state.doc.line(1);
-    problems.push({ from: line.from, to: line.to, severity: 'error', message: `Last run: ${runtimeError.message}` });
+    const lineNo = errorNodes.length
+      ? state.doc.lineAt(Math.min(Math.min(...errorNodes), state.doc.length)).number
+      : engineOnlySyntaxErrorLine(code, message, params);
+    return [problemOn(state, lineNo, `Syntax error: ${message}`)];
   }
-  return problems;
+  if (runtimeError && code === originalCode) {
+    return [problemOn(state, runtimeErrorLine(runtimeError), `Last run: ${runtimeError.message}`)];
+  }
+  return [];
+}
+
+// A problem on a 1-based line, or (line unknown) a point at the start that the status bar says is unplaced.
+function problemOn(state, lineNo, message) {
+  if (lineNo && lineNo <= state.doc.lines) {
+    const line = state.doc.line(lineNo);
+    return { from: line.from, to: line.to, severity: 'error', message };
+  }
+  return { from: 0, to: 0, severity: 'error', message, lineUnknown: true };
 }
 
 const describe = (state, problems) => {
   if (!problems.length) return 'No problems';
   const p = problems[0];
+  if (p.lineUnknown) return `Line unknown: ${p.message}`;
   return `Line ${state.doc.lineAt(p.from).number}: ${p.message}`;
 };
 
